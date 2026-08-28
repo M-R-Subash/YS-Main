@@ -20,28 +20,26 @@ export const metadata: Metadata = {
 
 async function getHeaderData() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${baseUrl}/api/header`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (!res.ok) return null;
     return res.json();
-  } catch (error) {
-    console.error("Failed to fetch header data:", error);
+  } catch {
     return null;
   }
 }
 
 async function getFooterData() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${baseUrl}/api/footer`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (!res.ok) return null;
     return res.json();
-  } catch (error) {
-    console.error("Failed to fetch footer data:", error);
+  } catch {
     return null;
   }
 }
