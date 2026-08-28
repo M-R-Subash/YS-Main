@@ -9,5 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Page'
+export type * from './models/SeoMeta'
 export type * from './models/Header'
+export type * from './models/Footer'
 export type * from './commonInputTypes'

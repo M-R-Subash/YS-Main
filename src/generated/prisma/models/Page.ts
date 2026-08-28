@@ -202,6 +202,7 @@ export type PageWhereInput = {
   content?: Prisma.JsonFilter<"Page">
   createdAt?: Prisma.DateTimeFilter<"Page"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Page"> | Date | string
+  seo?: Prisma.XOR<Prisma.SeoMetaNullableScalarRelationFilter, Prisma.SeoMetaWhereInput> | null
 }
 
 export type PageOrderByWithRelationInput = {
@@ -213,6 +214,7 @@ export type PageOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  seo?: Prisma.SeoMetaOrderByWithRelationInput
 }
 
 export type PageWhereUniqueInput = Prisma.AtLeast<{
@@ -227,6 +229,7 @@ export type PageWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.JsonFilter<"Page">
   createdAt?: Prisma.DateTimeFilter<"Page"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Page"> | Date | string
+  seo?: Prisma.XOR<Prisma.SeoMetaNullableScalarRelationFilter, Prisma.SeoMetaWhereInput> | null
 }, "id" | "slug">
 
 export type PageOrderByWithAggregationInput = {
@@ -266,6 +269,7 @@ export type PageCreateInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
+  seo?: Prisma.SeoMetaCreateNestedOneWithoutPageInput
 }
 
 export type PageUncheckedCreateInput = {
@@ -277,6 +281,7 @@ export type PageUncheckedCreateInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
+  seo?: Prisma.SeoMetaUncheckedCreateNestedOneWithoutPageInput
 }
 
 export type PageUpdateInput = {
@@ -288,6 +293,7 @@ export type PageUpdateInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  seo?: Prisma.SeoMetaUpdateOneWithoutPageNestedInput
 }
 
 export type PageUncheckedUpdateInput = {
@@ -299,6 +305,7 @@ export type PageUncheckedUpdateInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  seo?: Prisma.SeoMetaUncheckedUpdateOneWithoutPageNestedInput
 }
 
 export type PageCreateManyInput = {
@@ -365,6 +372,11 @@ export type PageMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type PageNullableScalarRelationFilter = {
+  is?: Prisma.PageWhereInput | null
+  isNot?: Prisma.PageWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -375,6 +387,82 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type PageCreateNestedOneWithoutSeoInput = {
+  create?: Prisma.XOR<Prisma.PageCreateWithoutSeoInput, Prisma.PageUncheckedCreateWithoutSeoInput>
+  connectOrCreate?: Prisma.PageCreateOrConnectWithoutSeoInput
+  connect?: Prisma.PageWhereUniqueInput
+}
+
+export type PageUpdateOneWithoutSeoNestedInput = {
+  create?: Prisma.XOR<Prisma.PageCreateWithoutSeoInput, Prisma.PageUncheckedCreateWithoutSeoInput>
+  connectOrCreate?: Prisma.PageCreateOrConnectWithoutSeoInput
+  upsert?: Prisma.PageUpsertWithoutSeoInput
+  disconnect?: Prisma.PageWhereInput | boolean
+  delete?: Prisma.PageWhereInput | boolean
+  connect?: Prisma.PageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PageUpdateToOneWithWhereWithoutSeoInput, Prisma.PageUpdateWithoutSeoInput>, Prisma.PageUncheckedUpdateWithoutSeoInput>
+}
+
+export type PageCreateWithoutSeoInput = {
+  id?: string
+  title: string
+  slug: string
+  status?: string
+  isTrashed?: boolean
+  content: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PageUncheckedCreateWithoutSeoInput = {
+  id?: string
+  title: string
+  slug: string
+  status?: string
+  isTrashed?: boolean
+  content: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PageCreateOrConnectWithoutSeoInput = {
+  where: Prisma.PageWhereUniqueInput
+  create: Prisma.XOR<Prisma.PageCreateWithoutSeoInput, Prisma.PageUncheckedCreateWithoutSeoInput>
+}
+
+export type PageUpsertWithoutSeoInput = {
+  update: Prisma.XOR<Prisma.PageUpdateWithoutSeoInput, Prisma.PageUncheckedUpdateWithoutSeoInput>
+  create: Prisma.XOR<Prisma.PageCreateWithoutSeoInput, Prisma.PageUncheckedCreateWithoutSeoInput>
+  where?: Prisma.PageWhereInput
+}
+
+export type PageUpdateToOneWithWhereWithoutSeoInput = {
+  where?: Prisma.PageWhereInput
+  data: Prisma.XOR<Prisma.PageUpdateWithoutSeoInput, Prisma.PageUncheckedUpdateWithoutSeoInput>
+}
+
+export type PageUpdateWithoutSeoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isTrashed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PageUncheckedUpdateWithoutSeoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isTrashed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -388,6 +476,7 @@ export type PageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   content?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  seo?: boolean | Prisma.Page$seoArgs<ExtArgs>
 }, ExtArgs["result"]["page"]>
 
 export type PageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -424,10 +513,17 @@ export type PageSelectScalar = {
 }
 
 export type PageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "status" | "isTrashed" | "content" | "createdAt" | "updatedAt", ExtArgs["result"]["page"]>
+export type PageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  seo?: boolean | Prisma.Page$seoArgs<ExtArgs>
+}
+export type PageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type PageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $PagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Page"
-  objects: {}
+  objects: {
+    seo: Prisma.$SeoMetaPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
@@ -831,6 +927,7 @@ readonly fields: PageFieldRefs;
  */
 export interface Prisma__PageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  seo<T extends Prisma.Page$seoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Page$seoArgs<ExtArgs>>): Prisma.Prisma__SeoMetaClient<runtime.Types.Result.GetResult<Prisma.$SeoMetaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -885,6 +982,10 @@ export type PageFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * Filter, which Page to fetch.
    */
   where: Prisma.PageWhereUniqueInput
@@ -903,6 +1004,10 @@ export type PageFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * Filter, which Page to fetch.
    */
   where: Prisma.PageWhereUniqueInput
@@ -920,6 +1025,10 @@ export type PageFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Page
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
   /**
    * Filter, which Page to fetch.
    */
@@ -969,6 +1078,10 @@ export type PageFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * Filter, which Page to fetch.
    */
   where?: Prisma.PageWhereInput
@@ -1016,6 +1129,10 @@ export type PageFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Page
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
   /**
    * Filter, which Pages to fetch.
    */
@@ -1065,6 +1182,10 @@ export type PageCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * The data needed to create a Page.
    */
   data: Prisma.XOR<Prisma.PageCreateInput, Prisma.PageUncheckedCreateInput>
@@ -1112,6 +1233,10 @@ export type PageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    * Omit specific fields from the Page
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
   /**
    * The data needed to update a Page.
    */
@@ -1179,6 +1304,10 @@ export type PageUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * The filter to search for the Page to update in case it exists.
    */
   where: Prisma.PageWhereUniqueInput
@@ -1205,6 +1334,10 @@ export type PageDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
+  /**
    * Filter which Page to delete.
    */
   where: Prisma.PageWhereUniqueInput
@@ -1225,6 +1358,25 @@ export type PageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * Page.seo
+ */
+export type Page$seoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SeoMeta
+   */
+  select?: Prisma.SeoMetaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SeoMeta
+   */
+  omit?: Prisma.SeoMetaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SeoMetaInclude<ExtArgs> | null
+  where?: Prisma.SeoMetaWhereInput
+}
+
+/**
  * Page without action
  */
 export type PageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1236,4 +1388,8 @@ export type PageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the Page
    */
   omit?: Prisma.PageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PageInclude<ExtArgs> | null
 }

@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Page: 'Page',
-  Header: 'Header'
+  SeoMeta: 'SeoMeta',
+  Header: 'Header',
+  Footer: 'Footer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -85,6 +87,23 @@ export const PageScalarFieldEnum = {
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
 
 
+export const SeoMetaScalarFieldEnum = {
+  id: 'id',
+  metaTitle: 'metaTitle',
+  metaDesc: 'metaDesc',
+  focusKeyword: 'focusKeyword',
+  ogImage: 'ogImage',
+  ogTitle: 'ogTitle',
+  ogDesc: 'ogDesc',
+  canonicalUrl: 'canonicalUrl',
+  structuredData: 'structuredData',
+  noIndex: 'noIndex',
+  pageId: 'pageId'
+} as const
+
+export type SeoMetaScalarFieldEnum = (typeof SeoMetaScalarFieldEnum)[keyof typeof SeoMetaScalarFieldEnum]
+
+
 export const HeaderScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -93,6 +112,16 @@ export const HeaderScalarFieldEnum = {
 } as const
 
 export type HeaderScalarFieldEnum = (typeof HeaderScalarFieldEnum)[keyof typeof HeaderScalarFieldEnum]
+
+
+export const FooterScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FooterScalarFieldEnum = (typeof FooterScalarFieldEnum)[keyof typeof FooterScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -110,6 +139,14 @@ export const JsonNullValueInput = {
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -125,4 +162,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

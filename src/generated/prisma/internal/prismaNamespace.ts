@@ -398,7 +398,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Page: 'Page',
-  Header: 'Header'
+  SeoMeta: 'SeoMeta',
+  Header: 'Header',
+  Footer: 'Footer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "page" | "header"
+    modelProps: "page" | "seoMeta" | "header" | "footer"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -492,6 +494,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SeoMeta: {
+      payload: Prisma.$SeoMetaPayload<ExtArgs>
+      fields: Prisma.SeoMetaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SeoMetaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SeoMetaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        findFirst: {
+          args: Prisma.SeoMetaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SeoMetaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        findMany: {
+          args: Prisma.SeoMetaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>[]
+        }
+        create: {
+          args: Prisma.SeoMetaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        createMany: {
+          args: Prisma.SeoMetaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SeoMetaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>[]
+        }
+        delete: {
+          args: Prisma.SeoMetaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        update: {
+          args: Prisma.SeoMetaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        deleteMany: {
+          args: Prisma.SeoMetaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SeoMetaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SeoMetaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>[]
+        }
+        upsert: {
+          args: Prisma.SeoMetaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeoMetaPayload>
+        }
+        aggregate: {
+          args: Prisma.SeoMetaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSeoMeta>
+        }
+        groupBy: {
+          args: Prisma.SeoMetaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeoMetaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SeoMetaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeoMetaCountAggregateOutputType> | number
+        }
+      }
+    }
     Header: {
       payload: Prisma.$HeaderPayload<ExtArgs>
       fields: Prisma.HeaderFieldRefs
@@ -566,6 +642,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Footer: {
+      payload: Prisma.$FooterPayload<ExtArgs>
+      fields: Prisma.FooterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FooterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FooterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        findFirst: {
+          args: Prisma.FooterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FooterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        findMany: {
+          args: Prisma.FooterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>[]
+        }
+        create: {
+          args: Prisma.FooterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        createMany: {
+          args: Prisma.FooterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FooterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>[]
+        }
+        delete: {
+          args: Prisma.FooterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        update: {
+          args: Prisma.FooterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        deleteMany: {
+          args: Prisma.FooterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FooterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FooterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>[]
+        }
+        upsert: {
+          args: Prisma.FooterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FooterPayload>
+        }
+        aggregate: {
+          args: Prisma.FooterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFooter>
+        }
+        groupBy: {
+          args: Prisma.FooterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FooterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FooterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FooterCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -619,6 +769,23 @@ export const PageScalarFieldEnum = {
 export type PageScalarFieldEnum = (typeof PageScalarFieldEnum)[keyof typeof PageScalarFieldEnum]
 
 
+export const SeoMetaScalarFieldEnum = {
+  id: 'id',
+  metaTitle: 'metaTitle',
+  metaDesc: 'metaDesc',
+  focusKeyword: 'focusKeyword',
+  ogImage: 'ogImage',
+  ogTitle: 'ogTitle',
+  ogDesc: 'ogDesc',
+  canonicalUrl: 'canonicalUrl',
+  structuredData: 'structuredData',
+  noIndex: 'noIndex',
+  pageId: 'pageId'
+} as const
+
+export type SeoMetaScalarFieldEnum = (typeof SeoMetaScalarFieldEnum)[keyof typeof SeoMetaScalarFieldEnum]
+
+
 export const HeaderScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -627,6 +794,16 @@ export const HeaderScalarFieldEnum = {
 } as const
 
 export type HeaderScalarFieldEnum = (typeof HeaderScalarFieldEnum)[keyof typeof HeaderScalarFieldEnum]
+
+
+export const FooterScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FooterScalarFieldEnum = (typeof FooterScalarFieldEnum)[keyof typeof FooterScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -644,6 +821,14 @@ export const JsonNullValueInput = {
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -659,6 +844,14 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -881,7 +1074,9 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   page?: Prisma.PageOmit
+  seoMeta?: Prisma.SeoMetaOmit
   header?: Prisma.HeaderOmit
+  footer?: Prisma.FooterOmit
 }
 
 /* Types for Logging */

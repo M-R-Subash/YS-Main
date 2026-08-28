@@ -47,7 +47,17 @@ export { Prisma }
  */
 export type Page = Prisma.PageModel
 /**
+ * Model SeoMeta
+ * 
+ */
+export type SeoMeta = Prisma.SeoMetaModel
+/**
  * Model Header
  * 
  */
 export type Header = Prisma.HeaderModel
+/**
+ * Model Footer
+ * 
+ */
+export type Footer = Prisma.FooterModel
