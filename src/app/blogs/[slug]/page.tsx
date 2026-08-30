@@ -27,6 +27,9 @@ export default async function BlogSinglePage({ params }: any) {
     include: {
       author: true,
       seo: true,
+      comments: {
+        orderBy: { createdAt: "desc" }
+      }
     },
   });
 

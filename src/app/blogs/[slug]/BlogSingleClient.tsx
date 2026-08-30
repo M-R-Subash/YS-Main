@@ -44,6 +44,14 @@ export default function BlogSingleClient({
   const [currentUrl, setCurrentUrl] = useState("");
   const [activeId, setActiveId] = useState<string>("");
 
+  const [comments, setComments] = useState<any[]>(blog.comments || []);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   useEffect(() => {
     setCurrentUrl(window.location.href);
 
@@ -73,6 +81,44 @@ export default function BlogSingleClient({
   const handleCopyLink = () => {
     navigator.clipboard.writeText(currentUrl);
     alert("Link copied to clipboard!");
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email || !content) {
+      setSubmitError("Please fill out all required fields.");
+      return;
+    }
+    setIsSubmitting(true);
+    setSubmitError("");
+    setSubmitSuccess(false);
+
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          blogId: blog.id,
+          name,
+          email,
+          content
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to submit comment");
+
+      setComments([data.comment, ...comments]);
+      setContent("");
+      setSubmitSuccess(true);
+      
+      // Auto-clear success state after 4 seconds
+      setTimeout(() => setSubmitSuccess(false), 4000);
+    } catch (err: any) {
+      setSubmitError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -264,6 +310,107 @@ export default function BlogSingleClient({
                 </button>
               </div>
             </div>
+
+            {/* Comments Section */}
+            {blog.allowComments && (
+              <div className="mt-16 pt-12 border-t border-zinc-200/80">
+                <h3 className="text-2xl font-extrabold text-zinc-900 mb-8 flex items-center gap-3">
+                  Discussion 
+                  <span className="text-sm font-semibold bg-zinc-100 text-zinc-600 px-3 py-1 rounded-full border border-zinc-200">
+                    {comments.length}
+                  </span>
+                </h3>
+
+                {/* Comment Form */}
+                <form onSubmit={handleCommentSubmit} className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-6 md:p-8 mb-10">
+                  <h4 className="font-bold text-zinc-800 mb-2">Join the conversation</h4>
+                  <p className="text-xs text-zinc-500 mb-6">Your email address will not be published. Required fields are marked *</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Name *</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Your name"
+                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Email *</label>
+                      <input 
+                        type="email" 
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Your email address"
+                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Comment *</label>
+                    <textarea 
+                      required
+                      rows={4}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your comment here..."
+                      className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white resize-y"
+                    />
+                  </div>
+
+                  {submitError && (
+                    <div className="p-4 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl">
+                      {submitError}
+                    </div>
+                  )}
+
+                  {submitSuccess && (
+                    <div className="p-4 mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl">
+                      Comment submitted successfully!
+                    </div>
+                  )}
+
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary text-black font-bold py-3 px-6 rounded-xl hover:bg-primary-hover transition-colors text-sm shadow-sm disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Comment"}
+                  </button>
+                </form>
+
+                {/* Comment List */}
+                <div className="space-y-6">
+                  {comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <div key={comment.id} className="flex gap-4 p-5 rounded-2xl border border-zinc-100 bg-zinc-50/30">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase shrink-0">
+                          {comment.name[0]}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-baseline gap-2 mb-1.5">
+                            <span className="font-bold text-sm text-zinc-900">{comment.name}</span>
+                            <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
+                              {new Date(comment.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </span>
+                          </div>
+                          <p className="text-zinc-600 text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-10 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50/10">
+                      <p className="text-zinc-400 text-sm font-medium">No comments yet. Be the first to join the discussion!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </div>

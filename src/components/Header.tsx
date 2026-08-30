@@ -57,13 +57,13 @@ export default function Header({ data }: { data?: HeaderData | null }) {
 
         {/* Center: Navigation Pill Container */}
         <nav className="hidden lg:flex items-center gap-7 bg-[radial-gradient(ellipse_at_bottom_right,color-mix(in_srgb,var(--color-primary)_40%,transparent)_0%,#0c0a05_80%)] border border-primary/40 px-8 py-2.5 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.8)] transition-all">
-          {displayData.navItems?.map((item) => {
+          {displayData.navItems?.map((item, i) => {
             const hasSubItems = item.subItems && item.subItems.length > 0;
 
             if (hasSubItems) {
               return (
                 <div
-                  key={item.id}
+                  key={item.id || `dropdown-${i}`}
                   className="relative"
                   onMouseEnter={() => setActiveDropdown(item.id)}
                   onMouseLeave={() => setActiveDropdown(null)}
@@ -88,9 +88,9 @@ export default function Header({ data }: { data?: HeaderData | null }) {
                   {activeDropdown === item.id && (
                     <div className="absolute top-full left-0 pt-3 w-66">
                       <div className="bg-white/90 border border-primary/30 rounded-sm p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
-                        {item.subItems?.map((sub, i) => (
+                        {item.subItems?.map((sub, idx) => (
                           <Link
-                            key={i}
+                            key={idx}
                             href={sub.url}
                             className="block px-4 py-2.5 text-xs font-medium text-black hover:text-white hover:bg-black rounded-sm transition-colors"
                           >
@@ -106,7 +106,7 @@ export default function Header({ data }: { data?: HeaderData | null }) {
 
             return (
               <Link
-                key={item.id}
+                key={item.id || `item-${i}`}
                 href={item.url?.url || "#"}
                 target={item.url?.newTab ? "_blank" : undefined}
                 rel={item.url?.noFollow ? "nofollow noopener noreferrer" : undefined}
