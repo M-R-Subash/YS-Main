@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme inline {
   --color-background: #050505;
@@ -87,3 +88,63 @@ body {
 .animate-slide-in {
   animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Blog prose table styling — TipTap renders all cells as <td>, no <thead>/<th> */
+article.prose table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid #e4e4e7 !important;
+  width: 100% !important;
+  font-size: 0.875rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  overflow: hidden !important;
+  border-radius: 0.5rem !important;
+}
+
+/* Header Row (First Row) styling */
+article.prose table tbody tr:first-child {
+  background-color: #18181b !important;
+}
+
+article.prose table tbody tr:first-child td {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  padding: 0.02rem 1.02rem !important;
+  border-bottom: 1px solid #3f3f46 !important;
+  border-right: 1px solid #3f3f46 !important;
+}
+
+article.prose table tbody tr:first-child td:last-child {
+  border-right: none !important;
+}
+
+article.prose table tbody tr:first-child td p,
+article.prose table tbody tr:first-child td strong {
+  color: #ffffff !important;
+}
+
+/* Body Rows & Cells styling */
+article.prose table tbody tr:not(:first-child) {
+  background-color: transparent;
+}
+
+article.prose table tbody tr:not(:first-child):hover {
+  background-color: #fafafa !important;
+}
+
+article.prose table td {
+  padding: 0.02rem 1.02rem !important;
+  border-bottom: 1px solid #e4e4e7 !important;
+  border-right: 1px solid #e4e4e7 !important;
+  color: #3f3f46 !important;
+}
+
+article.prose table tbody tr:not(:first-child) td:last-child {
+  border-right: none !important;
+}
+
+article.prose table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+

@@ -9,6 +9,30 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  password       String    
+  name           String?
+  description    String?
+  authorRole     String?
+  profilePicture String?
+  role           Role      @default(EDITOR)
+  
+  lastLogin      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  pages          Page[]    @relation("PageAuthor")
+  blogs          Blog[]    @relation("BlogAuthor")
+  comments       Comment[]
+}
+
 model Page {
   id        String   @id @default(cuid())
   title     String
@@ -20,6 +44,9 @@ model Page {
   updatedAt DateTime @updatedAt
   
   seo       SeoMeta?
+
+  authorId  String?
+  author    User?    @relation("PageAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 model SeoMeta {
@@ -33,9 +60,15 @@ model SeoMeta {
   canonicalUrl  String?
   structuredData Json?
   noIndex       Boolean  @default(false)
+  authorName    String?
+  authorRole    String?
+  authorDescription String?
   
   pageId        String?  @unique
   page          Page?    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  
+  blogId        String?  @unique
+  blog          Blog?    @relation(fields: [blogId], references: [id], onDelete: Cascade)
 }
 
 model Header {
@@ -50,4 +83,51 @@ model Footer {
   content   Json     
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Blog {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  featuredImage String?
+  allowComments Boolean   @default(true)
+  status        String    @default("draft")
+  isTrashed     Boolean   @default(false)
+  content       Json
+  excerpt       String?
+  readingTime   Int?     
+  tags          String[] 
+  categories    String[] 
+  publishedAt   DateTime? 
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  seo           SeoMeta?
+
+  authorId      String?
+  author        User?     @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  
+  comments      Comment[]
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  content     String
+  isApproved  Boolean  @default(false)
+  
+  guestName   String?
+  guestEmail  String?
+  
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  
+  parentId    String?
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[] @relation("CommentReplies")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
