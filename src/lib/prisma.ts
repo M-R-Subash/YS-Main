@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function createPrismaClient() {
+function createPrismaClient(): PrismaClient {
   const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
   });
@@ -14,8 +14,16 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-const prisma = globalForPrisma.prisma ?? createPrismaClient();
+let client = globalForPrisma.prisma;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (!client || !(client as any).formSubmission) {
+  client = createPrismaClient();
+}
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = client;
+}
+
+const prisma: PrismaClient = client;
 
 export default prisma;

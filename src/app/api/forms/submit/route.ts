@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const submission = await prisma.formSubmission.create({
       data: {
         formName,
-        sourceUrl: sourceUrl || "/contact",
+        sourceUrl: sourceUrl,
         payload,
         ipAddress,
         userAgent,
