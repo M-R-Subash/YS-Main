@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, Link2, ChevronRight } from "lucide-react";
+import { Clock, Calendar, Link2, ChevronRight, CornerDownRight, ShieldCheck } from "lucide-react";
 
 const FacebookIcon = ({ className }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,12 +108,12 @@ export default function BlogSingleClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to submit comment");
 
-      setComments([data.comment, ...comments]);
+      // Do NOT add to comments state since comment requires admin approval
       setContent("");
       setSubmitSuccess(true);
       
-      // Auto-clear success state after 4 seconds
-      setTimeout(() => setSubmitSuccess(false), 4000);
+      // Auto-clear success state after 6 seconds
+      setTimeout(() => setSubmitSuccess(false), 6000);
     } catch (err: any) {
       setSubmitError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -121,10 +121,14 @@ export default function BlogSingleClient({
     }
   };
 
+  // Filter root comments and replies
+  const rootComments = comments.filter((c) => !c.parentId);
+  const getReplies = (parentId: string) => comments.filter((c) => c.parentId === parentId);
+
   return (
     <div className="bg-[#fafafa] min-h-screen text-zinc-900 selection:bg-primary/30">
       {/* Hero Section */}
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           {/* Left Side: Content — 60% */}
           <div className="w-full lg:w-[60%] order-2 lg:order-1">
@@ -138,7 +142,7 @@ export default function BlogSingleClient({
               </div>
             )}
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-8 leading-[1.15]">
               {blog.title}
             </h1>
 
@@ -190,15 +194,15 @@ export default function BlogSingleClient({
         </div>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="bg-zinc-50 border border-zinc-200/80 rounded-[32px] p-6 md:p-8 lg:p-12 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="bg-zinc-50 border border-zinc-200/80 rounded-[32px] p-4 sm:p-6 lg:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           
           {/* TOC Sidebar */}
           {toc.length > 0 && (
-            <aside className="w-full lg:w-[300px] shrink-0 lg:sticky lg:top-32 order-2 lg:order-1">
+            <aside className="w-full lg:w-[280px] shrink-0 lg:sticky lg:top-32 order-2 lg:order-1">
               <div className="bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden">
                 {/* TOC Header */}
-                <div className="px-6 py-5 bg-zinc-50 border-b border-zinc-100">
+                <div className="px-5 py-4 bg-zinc-50 border-b border-zinc-100">
                   <h4 className="text-xs font-extrabold uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
                     On this page
@@ -206,15 +210,15 @@ export default function BlogSingleClient({
                 </div>
 
                 {/* TOC Links */}
-                <nav className="p-4 flex flex-col gap-0.5">
+                <nav className="p-3 flex flex-col gap-1">
                   {toc.map((heading, idx) => (
                     <a 
                       key={heading.id} 
                       href={`#${heading.id}`}
-                      className={`group flex items-start gap-3 px-3 py-2.5 rounded-lg text-[13px] leading-snug transition-all duration-200 ${
+                      className={`group flex items-start gap-2.5 px-3 py-2 rounded-xl text-xs leading-relaxed transition-all duration-200 ${
                         activeId === heading.id 
-                          ? "bg-primary/10 text-primary font-semibold" 
-                          : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
+                          ? "bg-primary/10 text-primary font-bold" 
+                          : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 font-medium"
                       }`}
                     >
                       <span className={`shrink-0 w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold mt-0.5 transition-colors ${
@@ -233,17 +237,17 @@ export default function BlogSingleClient({
           )}
 
           {/* Main Content */}
-          <main className="w-full flex-1 max-w-3xl order-1 lg:order-2 bg-white border border-zinc-200/80 rounded-3xl p-6 md:p-10 lg:p-12 shadow-sm">
+          <main className="w-full flex-1 order-1 lg:order-2 bg-white border border-zinc-200/80 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm">
             <article 
-              className="prose prose-lg prose-zinc prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary-hover max-w-none prose-img:rounded-xl"
+              className="prose prose-zinc prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary-hover max-w-none prose-img:rounded-2xl"
               dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
 
             {/* Tags */}
             {blog.tags && blog.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-zinc-200">
+              <div className="flex flex-wrap gap-2 mt-14 pt-8 border-t border-zinc-100">
                 {blog.tags.map((tag: string) => (
-                  <span key={tag} className="px-3 py-1 bg-zinc-100 text-zinc-600 border border-zinc-200 text-xs font-medium rounded-full">
+                  <span key={tag} className="px-3.5 py-1.5 bg-zinc-100 text-zinc-600 border border-zinc-200 text-xs font-semibold rounded-full">
                     #{tag}
                   </span>
                 ))}
@@ -251,23 +255,23 @@ export default function BlogSingleClient({
             )}
 
             {/* Author Box */}
-            <div className="mt-16 bg-zinc-50/50 shadow-sm border border-zinc-200/80 rounded-2xl p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+            <div className="mt-16 bg-zinc-50/70 shadow-xs border border-zinc-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               {blog.author?.profilePicture ? (
                 <img 
                   src={blog.author.profilePicture} 
                   alt={authorName} 
-                  className="w-20 h-20 rounded-full object-cover border border-zinc-200 shrink-0"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border border-zinc-200 shrink-0 shadow-xs"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl uppercase shrink-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-2xl uppercase shrink-0">
                   {authorName[0]}
                 </div>
               )}
               <div>
-                <h3 className="text-xl font-bold mb-1 text-zinc-900">{authorName}</h3>
-                <p className="text-sm text-primary font-semibold mb-3">{authorRole}</p>
+                <h3 className="text-lg font-bold mb-0.5 text-zinc-900">{authorName}</h3>
+                <p className="text-xs text-primary font-bold uppercase tracking-wider mb-2">{authorRole}</p>
                 {authorDesc && (
-                  <p className="text-zinc-500 text-sm leading-relaxed">
+                  <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
                     {authorDesc}
                   </p>
                 )}
@@ -275,14 +279,14 @@ export default function BlogSingleClient({
             </div>
 
             {/* Social Sharing */}
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 bg-zinc-50 p-6 rounded-2xl border border-zinc-200">
-              <span className="font-bold text-lg text-zinc-800">Share this article:</span>
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50 p-6 rounded-2xl border border-zinc-200/80">
+              <span className="font-bold text-base text-zinc-800">Share this article:</span>
               <div className="flex items-center gap-3">
                 <a 
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(blog.title)}`}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-sm flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-xs flex items-center justify-center transition-colors"
                 >
                   <TwitterIcon className="w-4 h-4" />
                 </a>
@@ -290,7 +294,7 @@ export default function BlogSingleClient({
                   href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(blog.title)}`}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-sm flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-xs flex items-center justify-center transition-colors"
                 >
                   <LinkedinIcon className="w-4 h-4" />
                 </a>
@@ -298,114 +302,158 @@ export default function BlogSingleClient({
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-sm flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-xs flex items-center justify-center transition-colors"
                 >
                   <FacebookIcon className="w-4 h-4" />
                 </a>
                 <button 
                   onClick={handleCopyLink}
-                  className="w-10 h-10 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-sm flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-white hover:bg-primary hover:text-white border border-zinc-200 shadow-xs flex items-center justify-center transition-colors"
                 >
                   <Link2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Comments Section */}
+            {/* Comments / Discussion Section */}
             {blog.allowComments && (
-              <div className="mt-16 pt-12 border-t border-zinc-200/80">
-                <h3 className="text-2xl font-extrabold text-zinc-900 mb-8 flex items-center gap-3">
-                  Discussion 
-                  <span className="text-sm font-semibold bg-zinc-100 text-zinc-600 px-3 py-1 rounded-full border border-zinc-200">
-                    {comments.length}
-                  </span>
-                </h3>
+              <div className="mt-16 pt-12 border-t border-zinc-200/80 space-y-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-zinc-900 tracking-tight flex items-center gap-3">
+                    <span>Discussion</span> 
+                    <span className="text-xs font-bold bg-zinc-100 text-zinc-600 px-2.5 py-0.5 rounded-full border border-zinc-200">
+                      {comments.length}
+                    </span>
+                  </h3>
+                </div>
 
                 {/* Comment Form */}
-                <form onSubmit={handleCommentSubmit} className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-6 md:p-8 mb-10">
-                  <h4 className="font-bold text-zinc-800 mb-2">Join the conversation</h4>
-                  <p className="text-xs text-zinc-500 mb-6">Your email address will not be published. Required fields are marked *</p>
+                <form onSubmit={handleCommentSubmit} className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-6 sm:p-8 space-y-4">
+                  <div>
+                    <h4 className="font-bold text-sm text-zinc-800 mb-1">Join the conversation</h4>
+                    <p className="text-xs text-zinc-500">Your email address will not be published. Required fields are marked *</p>
+                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Name *</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Name *</label>
                       <input 
                         type="text" 
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Your name"
-                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white"
+                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-3.5 py-2.5 rounded-xl text-xs bg-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Email *</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Email *</label>
                       <input 
                         type="email" 
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Your email address"
-                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white"
+                        className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-3.5 py-2.5 rounded-xl text-xs bg-white"
                       />
                     </div>
                   </div>
 
-                  <div className="mb-6">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Comment *</label>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Comment *</label>
                     <textarea 
                       required
-                      rows={4}
+                      rows={3}
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Write your comment here..."
-                      className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-4 py-3 rounded-xl text-sm bg-white resize-y"
+                      className="w-full border border-zinc-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all px-3.5 py-2.5 rounded-xl text-xs bg-white resize-y"
                     />
                   </div>
 
                   {submitError && (
-                    <div className="p-4 mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="p-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl">
                       {submitError}
                     </div>
                   )}
 
                   {submitSuccess && (
-                    <div className="p-4 mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl">
-                      Comment submitted successfully!
+                    <div className="p-3 text-xs text-green-700 bg-green-50 border border-green-200 rounded-xl font-medium">
+                      Comment submitted successfully! It will appear once approved by an admin.
                     </div>
                   )}
 
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-primary text-black font-bold py-3 px-6 rounded-xl hover:bg-primary-hover transition-colors text-sm shadow-sm disabled:opacity-50"
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit Comment"}
-                  </button>
+                  <div className="flex justify-end pt-2">
+                    <button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-black hover:bg-black/90 text-white font-bold py-2.5 px-5 rounded-xl transition-colors text-xs shadow-xs disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Comment"}
+                    </button>
+                  </div>
                 </form>
 
                 {/* Comment List */}
-                <div className="space-y-6">
-                  {comments.length > 0 ? (
-                    comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-4 p-5 rounded-2xl border border-zinc-100 bg-zinc-50/30">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase shrink-0">
-                          {comment.name[0]}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-baseline gap-2 mb-1.5">
-                            <span className="font-bold text-sm text-zinc-900">{comment.name}</span>
-                            <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
-                              {new Date(comment.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
+                <div className="space-y-4">
+                  {rootComments.length > 0 ? (
+                    rootComments.map((comment) => {
+                      const childReplies = getReplies(comment.id);
+
+                      return (
+                        <div key={comment.id} className="p-5 rounded-2xl border border-zinc-200/80 bg-zinc-50/40 space-y-4">
+                          <div className="flex gap-3.5">
+                            <div className="w-9 h-9 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                              {comment.name[0]}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-baseline gap-2 mb-1">
+                                <span className="font-bold text-xs text-zinc-900">{comment.name}</span>
+                                <span className="text-[10px] text-zinc-400 font-semibold">
+                                  {new Date(comment.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                </span>
+                              </div>
+                              <p className="text-zinc-600 text-xs leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                            </div>
                           </div>
-                          <p className="text-zinc-600 text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+
+                          {/* Render Child Replies Nested Under Parent */}
+                          {childReplies.length > 0 && (
+                            <div className="ml-6 sm:ml-10 pt-3 border-t border-zinc-200/60 space-y-3">
+                              {childReplies.map((reply) => {
+                                const isAdminReply = reply.name.includes("(Admin)");
+                                return (
+                                  <div key={reply.id} className={`flex gap-3 p-3 rounded-xl border ${isAdminReply ? "bg-amber-500/10 border-amber-500/30" : "bg-white border-zinc-200/80"}`}>
+                                    <div className="w-7 h-7 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
+                                      {reply.name[0]}
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-bold text-xs text-zinc-900 flex items-center gap-1">
+                                          {reply.name}
+                                          {isAdminReply && (
+                                            <span className="bg-black text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-sm">
+                                              Author
+                                            </span>
+                                          )}
+                                        </span>
+                                        <span className="text-[10px] text-zinc-400 font-semibold">
+                                          {new Date(reply.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                        </span>
+                                      </div>
+                                      <p className="text-zinc-700 text-xs leading-relaxed whitespace-pre-wrap">{reply.content}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
-                    <div className="text-center py-10 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50/10">
-                      <p className="text-zinc-400 text-sm font-medium">No comments yet. Be the first to join the discussion!</p>
+                    <div className="text-center py-8 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50/10">
+                      <p className="text-zinc-400 text-xs font-medium">No comments yet. Be the first to join the discussion!</p>
                     </div>
                   )}
                 </div>

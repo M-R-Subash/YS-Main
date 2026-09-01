@@ -12,14 +12,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Store in the database with isApproved: true by default (instant feedback)
+    // Store in database as unapproved and not trashed by default (requires admin approval)
     const comment = await prisma.comment.create({
       data: {
         blogId,
         name,
         email,
         content,
-        isApproved: true,
+        isApproved: false,
+        isTrashed: false,
       },
     });
 

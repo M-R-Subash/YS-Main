@@ -28,7 +28,8 @@ export default async function BlogSinglePage({ params }: any) {
       author: true,
       seo: true,
       comments: {
-        orderBy: { createdAt: "desc" }
+        where: { isApproved: true, isTrashed: false },
+        orderBy: { createdAt: "asc" }
       }
     },
   });

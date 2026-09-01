@@ -113,6 +113,7 @@ model Comment {
   id          String   @id @default(cuid())
   content     String
   isApproved  Boolean  @default(false)
+  isTrashed   Boolean  @default(false)
   
   name        String
   email       String
