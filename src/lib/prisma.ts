@@ -16,7 +16,7 @@ function createPrismaClient(): PrismaClient {
 
 let client = globalForPrisma.prisma;
 
-if (!client || !(client as any).formSubmission) {
+if (!client || !(client as any).formSubmission || !(client as any).redirection) {
   client = createPrismaClient();
 }
 

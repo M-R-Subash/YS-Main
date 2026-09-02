@@ -12,6 +12,7 @@ export interface NavItem {
 }
 
 export interface HeaderData {
+  logo?: { url?: string; alt?: string; title?: string };
   ctaButton: { text: string; url: string; newTab?: boolean; noFollow?: boolean };
   navItems: NavItem[];
 }
@@ -46,8 +47,8 @@ export default function Header({ data }: { data?: HeaderData | null }) {
         {/* Left: Brand Logo Image */}
         <Link href="/" className="flex items-center group">
           <Image
-            src="/logo.png"
-            alt="YS Innovations"
+            src={displayData.logo?.url || "/logo.png"}
+            alt={displayData.logo?.alt || "YS Innovations"}
             width={210}
             height={44}
             className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
