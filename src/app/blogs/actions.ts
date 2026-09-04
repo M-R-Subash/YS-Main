@@ -16,14 +16,36 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
   }
 
   const [blogs, total] = await Promise.all([
-    prisma.blog.findMany({
+    prisma.blog.findMany({  
       where,
       skip,
       take: limit,
       orderBy: { publishedAt: "desc" },
-      include: {
-        author: true,
-        seo: true,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        featuredImage: true,
+        excerpt: true,
+        publishedAt: true,
+        readingTime: true,
+        categories: true,
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profilePicture: true,
+            authorRole: true,
+            description: true,
+          },
+        },
+        seo: {
+          select: {
+            metaDesc: true,
+            authorName: true,
+          },
+        },
       },
     }),
     prisma.blog.count({ where }),

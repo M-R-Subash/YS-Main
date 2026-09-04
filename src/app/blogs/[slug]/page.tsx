@@ -25,7 +25,15 @@ export default async function BlogSinglePage({ params }: any) {
   const blog = await prisma.blog.findUnique({
     where: { slug: p.slug, status: "published", isTrashed: false },
     include: {
-      author: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          profilePicture: true,
+          authorRole: true,
+          description: true,
+        },
+      },
       seo: true,
       comments: {
         where: { isApproved: true, isTrashed: false },
@@ -49,6 +57,16 @@ export default async function BlogSinglePage({ params }: any) {
     ? { hasSome: blog.categories } 
     : undefined;
 
+  const authorSelect = {
+    select: {
+      id: true,
+      name: true,
+      profilePicture: true,
+      authorRole: true,
+      description: true,
+    },
+  };
+
   const relatedBlogs = await prisma.blog.findMany({
     where: {
       status: "published",
@@ -58,7 +76,7 @@ export default async function BlogSinglePage({ params }: any) {
     },
     take: 3,
     orderBy: { publishedAt: "desc" },
-    include: { author: true, seo: true }
+    include: { author: authorSelect, seo: true }
   });
 
   // If not enough related blogs by category, just get latest
@@ -72,7 +90,7 @@ export default async function BlogSinglePage({ params }: any) {
       },
       take: 3 - relatedBlogs.length,
       orderBy: { publishedAt: "desc" },
-      include: { author: true, seo: true }
+      include: { author: authorSelect, seo: true }
     });
     relatedBlogs.push(...moreRelated);
   }
