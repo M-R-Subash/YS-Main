@@ -1,6 +1,49 @@
 import { NextResponse, type NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
+interface CachedRule {
+  destinationUrl: string;
+  statusCode: number;
+}
+
+// In-memory cache for active redirection rules (TTL: 60 seconds)
+let redirectsCache: Map<string, CachedRule> | null = null;
+let lastCacheFetchTime = 0;
+const CACHE_TTL_MS = 60 * 1000;
+
+async function getActiveRedirectsMap(): Promise<Map<string, CachedRule>> {
+  const now = Date.now();
+  if (redirectsCache && now - lastCacheFetchTime < CACHE_TTL_MS) {
+    return redirectsCache;
+  }
+
+  try {
+    const rules = await prisma.redirection.findMany({
+      where: { status: "active" },
+      select: {
+        sourceUrl: true,
+        destinationUrl: true,
+        statusCode: true,
+      },
+    });
+
+    const newMap = new Map<string, CachedRule>();
+    for (const rule of rules) {
+      newMap.set(rule.sourceUrl, {
+        destinationUrl: rule.destinationUrl,
+        statusCode: rule.statusCode,
+      });
+    }
+
+    redirectsCache = newMap;
+    lastCacheFetchTime = now;
+    return newMap;
+  } catch (err) {
+    console.error("Failed to load redirect cache:", err);
+    return redirectsCache || new Map();
+  }
+}
+
 export async function proxy(request: NextRequest) {
   // Use new URL(request.url) so Next-Url header during client-side navigation doesn't override current request URL
   const targetUrl = new URL(request.url);
@@ -34,17 +77,15 @@ export async function proxy(request: NextRequest) {
   const validCandidates = Array.from(candidatesSet).filter(Boolean);
 
   try {
-    // 2. Query active redirect rule for candidate source URLs
-    const redirectRule = await prisma.redirection.findFirst({
-      where: {
-        sourceUrl: { in: validCandidates },
-        status: "active",
-      },
-      select: {
-        destinationUrl: true,
-        statusCode: true,
-      },
-    });
+    // 2. Query active redirect rule from cached redirects map
+    const activeRedirects = await getActiveRedirectsMap();
+    let redirectRule: CachedRule | undefined;
+    for (const candidate of validCandidates) {
+      if (activeRedirects.has(candidate)) {
+        redirectRule = activeRedirects.get(candidate);
+        break;
+      }
+    }
 
     if (redirectRule) {
       const destination = redirectRule.destinationUrl.trim();

@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PreviewIsolator } from "@/components/PreviewIsolator";
 import { Suspense } from "react";
+import prisma from "@/lib/prisma";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -18,29 +19,57 @@ export const metadata: Metadata = {
   description: "Innovate Today, Lead Tomorrow",
 };
 
+const DEFAULT_HEADER_DATA = {
+  logo: { url: "/logo.png", alt: "YS Innovations" },
+  ctaButton: { text: "Get Started", url: "/contact", newTab: false, noFollow: false },
+  navItems: [
+    { id: "1", label: "Home", url: { url: "/", newTab: false, noFollow: false } },
+    { id: "2", label: "Careers", url: { url: "/careers", newTab: false, noFollow: false } },
+    { id: "3", label: "Blogs", url: { url: "/blogs", newTab: false, noFollow: false } },
+    { id: "4", label: "Contact", url: { url: "/contact", newTab: false, noFollow: false } },
+  ],
+};
+
+const DEFAULT_FOOTER_DATA = {
+  cta: {
+    title: "Let's build something extraordinary together.",
+    button: { text: "Start a Conversation", url: "/contact", newTab: false, noFollow: false },
+    image: { url: "/placeholder.png", alt: "Footer CTA" },
+  },
+  socialLinks: [],
+  newsletter: { title: "Stay Ahead", highlight: "with industry insights" },
+  columns: [],
+  contact: {
+    address: { text: "Bengaluru, India", url: "#" },
+    phone: { text: "+91 98765 43210", url: "tel:+919876543210" },
+    email: { text: "contact@ysinnovations.com", url: "mailto:contact@ysinnovations.com" },
+  },
+  backgroundImage: { url: "/placeholder.png", alt: "Footer Background" },
+  copyright: `© ${new Date().getFullYear()} YS Innovations. All rights reserved.`,
+  policyLinks: [],
+};
+
 async function getHeaderData() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const res = await fetch(`${baseUrl}/api/header`, {
-      next: { revalidate: 60 },
+    const header = await prisma.header.findUnique({
+      where: { id: "global" },
     });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
+    return (header?.content as any) || DEFAULT_HEADER_DATA;
+  } catch (error) {
+    console.error("Failed to query header data:", error);
+    return DEFAULT_HEADER_DATA;
   }
 }
 
 async function getFooterData() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const res = await fetch(`${baseUrl}/api/footer`, {
-      next: { revalidate: 60 },
+    const footer = await prisma.footer.findUnique({
+      where: { id: "global" },
     });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
+    return (footer?.content as any) || DEFAULT_FOOTER_DATA;
+  } catch (error) {
+    console.error("Failed to query footer data:", error);
+    return DEFAULT_FOOTER_DATA;
   }
 }
 

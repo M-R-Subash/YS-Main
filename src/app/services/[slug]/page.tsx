@@ -12,7 +12,10 @@ interface PageProps {
 export default async function ServiceSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const sParams = await searchParams;
-  const isPreview = sParams?.preview === "true";
+  const isPreview =
+    Boolean(process.env.PREVIEW_SECRET) &&
+    sParams?.preview === "true" &&
+    sParams?.secret === process.env.PREVIEW_SECRET;
 
   const fullSlug = `/services/${slug}`;
 

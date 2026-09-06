@@ -54,18 +54,29 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
   return { blogs, total, hasMore: skip + blogs.length < total };
 }
 
-export async function getCategories() {
-  const blogs = await prisma.blog.findMany({
-    where: { status: "published", isTrashed: false },
-    select: { categories: true },
-  });
+export async function getCategories(): Promise<string[]> {
+  try {
+    const results = await prisma.$queryRaw<{ category: string }[]>`
+      SELECT DISTINCT unnest(categories) AS category
+      FROM "Blog"
+      WHERE status = 'published' AND "isTrashed" = false
+      ORDER BY category ASC;
+    `;
+    return results.map((r) => r.category).filter(Boolean);
+  } catch {
+    const blogs = await prisma.blog.findMany({
+      where: { status: "published", isTrashed: false },
+      select: { categories: true },
+      take: 100,
+    });
 
-  const categorySet = new Set<string>();
-  blogs.forEach(blog => {
-    if (Array.isArray(blog.categories)) {
-      blog.categories.forEach(cat => categorySet.add(cat));
-    }
-  });
+    const categorySet = new Set<string>();
+    blogs.forEach((blog) => {
+      if (Array.isArray(blog.categories)) {
+        blog.categories.forEach((cat) => categorySet.add(cat));
+      }
+    });
 
-  return Array.from(categorySet).sort();
+    return Array.from(categorySet).sort();
+  }
 }

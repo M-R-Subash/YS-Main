@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 
 export default async function ContactPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const isPreview = params?.preview === "true";
+  const isPreview =
+    Boolean(process.env.PREVIEW_SECRET) &&
+    params?.preview === "true" &&
+    params?.secret === process.env.PREVIEW_SECRET;
 
   const page = await prisma.page.findUnique({
     where: { slug: "/contact" },

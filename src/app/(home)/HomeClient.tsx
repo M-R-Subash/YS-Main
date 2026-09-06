@@ -4,31 +4,59 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import FaqSection from "@/components/FaqSection";
-import * as LucideIcons from "lucide-react";
+import {
+  Search,
+  PenTool,
+  Code,
+  Rocket,
+  ShoppingCart,
+  GraduationCap,
+  Building,
+  CircleDollarSign,
+  HeartPulse,
+  Utensils,
+  Store,
+  Cpu,
+  TrendingUp,
+  Maximize,
+  ArrowUpRight,
+  ArrowRight,
+  Check,
+  Lightbulb,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
+  Star,
+  Asterisk,
+} from "lucide-react";
 
-const IconMap: Record<string, React.ComponentType<any>> = {
-  Search: LucideIcons.Search,
-  PenTool: LucideIcons.PenTool,
-  Code: LucideIcons.Code,
-  Rocket: LucideIcons.Rocket,
-  ShoppingCart: LucideIcons.ShoppingCart,
-  GraduationCap: LucideIcons.GraduationCap,
-  Building: LucideIcons.Building,
-  CircleDollarSign: LucideIcons.CircleDollarSign,
-  HeartPulse: LucideIcons.HeartPulse,
-  Utensils: LucideIcons.Utensils,
-  Store: LucideIcons.Store,
-  Cpu: LucideIcons.Cpu,
-  TrendingUp: LucideIcons.TrendingUp,
-  Maximize: LucideIcons.Maximize,
-  ArrowUpRight: LucideIcons.ArrowUpRight,
-  ArrowRight: LucideIcons.ArrowRight,
-  Check: LucideIcons.Check,
-  Lightbulb: LucideIcons.Lightbulb,
-  ChevronLeft: LucideIcons.ChevronLeft,
-  ChevronRight: LucideIcons.ChevronRight,
-  Star: LucideIcons.Star,
+const LucideIcons = {
+  Search,
+  PenTool,
+  Code,
+  Rocket,
+  ShoppingCart,
+  GraduationCap,
+  Building,
+  CircleDollarSign,
+  HeartPulse,
+  Utensils,
+  Store,
+  Cpu,
+  TrendingUp,
+  Maximize,
+  ArrowUpRight,
+  ArrowRight,
+  Check,
+  Lightbulb,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
+  Star,
+  Asterisk,
 };
+
+const IconMap: Record<string, React.ComponentType<any>> = LucideIcons;
 
 const DEFAULT_IMAGE = "https://res.cloudinary.com/subash-cms/image/upload/v1787243108/placeholder.png";
 const getImageSrc = (img: any) => { if (!img) return DEFAULT_IMAGE; if (typeof img === 'string') return img; if (typeof img === 'object' && img.url) return img.url; return DEFAULT_IMAGE; };
@@ -74,16 +102,16 @@ export default function HomeClient({ content: initialContent }: { content: any }
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  const projects = content.projects || [];
-  const ysProducts = content.ysProducts || [];
-  const logos = content.trusted?.logos || [];
+  const projects = content?.projects || [];
+  const ysProducts = content?.ysProducts || [];
+  const logos = content?.trusted?.logos || [];
   
   // Safe normalization of highlights to handle new 4-field format or fallback to corrupted DB string
   let highlights: string[] = [];
-  if (content.hero?.highlight1) highlights.push(content.hero.highlight1);
-  if (content.hero?.highlight2) highlights.push(content.hero.highlight2);
-  if (content.hero?.highlight3) highlights.push(content.hero.highlight3);
-  if (content.hero?.highlight4) highlights.push(content.hero.highlight4);
+  if (content?.hero?.highlight1) highlights.push(content.hero.highlight1);
+  if (content?.hero?.highlight2) highlights.push(content.hero.highlight2);
+  if (content?.hero?.highlight3) highlights.push(content.hero.highlight3);
+  if (content?.hero?.highlight4) highlights.push(content.hero.highlight4);
 
   if (highlights.length === 0) {
     const rawHighlights = content.hero?.highlights || [];
