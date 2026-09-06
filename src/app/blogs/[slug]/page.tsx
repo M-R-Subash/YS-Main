@@ -1,11 +1,13 @@
 import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { constructMetadata } from "@/lib/seo";
 import BlogSingleClient from "./BlogSingleClient";
 import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
-export const revalidate = 3600;
+export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -53,18 +55,20 @@ const getBlog = cache(async (slug: string, isPreview: boolean) => {
   });
 });
 
-export async function generateMetadata({ params, searchParams }: PageProps) {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const s = await searchParams;
   const isPreview = checkIsPreview(s);
   const blog = await getBlog(slug, isPreview);
 
-  if (!blog) return { title: "Blog Not Found" };
+  if (!blog) return constructMetadata({ title: "Blog Not Found" });
 
-  return {
-    title: blog.seo?.metaTitle || blog.title,
-    description: blog.seo?.metaDesc || blog.excerpt,
-  };
+  return constructMetadata({
+    title: blog.title,
+    description: blog.excerpt || undefined,
+    seo: blog.seo,
+    image: blog.featuredImage,
+  });
 }
 
 export default async function BlogSinglePage({ params, searchParams }: PageProps) {

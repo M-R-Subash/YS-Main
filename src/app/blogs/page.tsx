@@ -1,11 +1,25 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import prisma from "@/lib/prisma";
+import { constructMetadata } from "@/lib/seo";
 import { getBlogs, getCategories } from "./actions";
 import BlogListing from "./BlogListing";
 
-export const metadata: Metadata = {
-  title: "Blogs | YS CMS",
-  description: "Read our latest blog posts",
-};
+export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await prisma.page.findFirst({
+    where: {
+      OR: [{ slug: "/blogs" }, { slug: "blogs" }],
+    },
+    include: { seo: true },
+  });
+
+  return constructMetadata({
+    title: page?.title || "Blogs | YS Innovations",
+    description: "Discover the latest insights, tutorials, and updates from our team.",
+    seo: page?.seo,
+  });
+}
 
 export default async function BlogsPage() {
   const [initialData, categories] = await Promise.all([

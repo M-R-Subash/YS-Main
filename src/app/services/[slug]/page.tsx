@@ -1,12 +1,42 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { constructMetadata } from "@/lib/seo";
 import ServicesClient from "../ServicesClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+const getServicePage = cache(async (slug: string) => {
+  const fullSlug = `/services/${slug}`;
+  return prisma.page.findFirst({
+    where: {
+      OR: [
+        { slug: fullSlug },
+        { slug: `/${slug}` },
+        { slug: slug },
+      ],
+    },
+    include: { seo: true },
+  });
+});
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = await getServicePage(slug);
+  if (!page) {
+    return constructMetadata({ title: "Service Not Found" });
+  }
+
+  return constructMetadata({
+    title: page.title,
+    seo: page.seo,
+  });
 }
 
 export default async function ServiceSlugPage({ params, searchParams }: PageProps) {
@@ -17,17 +47,7 @@ export default async function ServiceSlugPage({ params, searchParams }: PageProp
     sParams?.preview === "true" &&
     sParams?.secret === process.env.PREVIEW_SECRET;
 
-  const fullSlug = `/services/${slug}`;
-
-  const page = await prisma.page.findFirst({
-    where: {
-      OR: [
-        { slug: fullSlug },
-        { slug: `/${slug}` },
-        { slug: slug },
-      ],
-    },
-  });
+  const page = await getServicePage(slug);
 
   if (!page || page.isTrashed) {
     notFound();
