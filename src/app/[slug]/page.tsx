@@ -12,7 +12,7 @@ interface PageProps {
 export default async function DynamicSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const sParams = await searchParams;
-  const isPreview = sParams?.preview === "true";
+  const isPreview = Boolean(process.env.PREVIEW_SECRET) && sParams?.preview === "true" && sParams?.secret === process.env.PREVIEW_SECRET;
 
   // Match root slug or /services/ slug
   const page = await prisma.page.findFirst({

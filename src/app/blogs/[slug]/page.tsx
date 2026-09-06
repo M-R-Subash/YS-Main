@@ -1,29 +1,32 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import BlogSingleClient from "./BlogSingleClient";
 import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
-export async function generateMetadata({ params }: any) {
-  const p = await params;
-  const blog = await prisma.blog.findUnique({
-    where: { slug: p.slug },
-    include: { seo: true },
-  });
+export const revalidate = 3600;
 
-  if (!blog) return { title: "Blog Not Found" };
-
-  return {
-    title: blog.seo?.metaTitle || blog.title,
-    description: blog.seo?.metaDesc || blog.excerpt,
-  };
+interface PageProps {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string; secret?: string }>;
 }
 
-export default async function BlogSinglePage({ params }: any) {
-  const p = await params;
-  
-  const blog = await prisma.blog.findUnique({
-    where: { slug: p.slug, status: "published", isTrashed: false },
+function checkIsPreview(searchParams?: { preview?: string; secret?: string }) {
+  return (
+    Boolean(process.env.PREVIEW_SECRET) &&
+    searchParams?.preview === "true" &&
+    searchParams?.secret === process.env.PREVIEW_SECRET
+  );
+}
+
+const getBlog = cache(async (slug: string, isPreview: boolean) => {
+  return prisma.blog.findFirst({
+    where: {
+      slug,
+      isTrashed: false,
+      ...(isPreview ? {} : { status: "published" }),
+    },
     include: {
       author: {
         select: {
@@ -37,10 +40,38 @@ export default async function BlogSinglePage({ params }: any) {
       seo: true,
       comments: {
         where: { isApproved: true, isTrashed: false },
-        orderBy: { createdAt: "asc" }
-      }
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          name: true,
+          content: true,
+          createdAt: true,
+          parentId: true,
+        },
+      },
     },
   });
+});
+
+export async function generateMetadata({ params, searchParams }: PageProps) {
+  const { slug } = await params;
+  const s = await searchParams;
+  const isPreview = checkIsPreview(s);
+  const blog = await getBlog(slug, isPreview);
+
+  if (!blog) return { title: "Blog Not Found" };
+
+  return {
+    title: blog.seo?.metaTitle || blog.title,
+    description: blog.seo?.metaDesc || blog.excerpt,
+  };
+}
+
+export default async function BlogSinglePage({ params, searchParams }: PageProps) {
+  const { slug } = await params;
+  const s = await searchParams;
+  const isPreview = checkIsPreview(s);
+  const blog = await getBlog(slug, isPreview);
 
   if (!blog) notFound();
 

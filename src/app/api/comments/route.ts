@@ -12,8 +12,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Store in database as unapproved and not trashed by default (requires admin approval)
-    const comment = await prisma.comment.create({
+    await prisma.comment.create({
       data: {
         blogId,
         name,
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, comment });
+    return NextResponse.json({ success: true, message: "Comment submitted successfully" });
   } catch (error: any) {
     console.error("Error creating comment:", error);
     return NextResponse.json(
