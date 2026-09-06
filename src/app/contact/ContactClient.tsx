@@ -138,8 +138,8 @@ export default function ContactClient({ content: initialContent }: { content: an
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#050505] text-white flex flex-col pt-24 md:pt-32 selection:bg-white selection:text-black">
-      <main className="flex-1 w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 space-y-24 pb-20">
+    <div className="w-full min-h-screen bg-background text-white flex flex-col pt-24 md:pt-32 selection:bg-white selection:text-black">
+      <main className="flex-1 w-full max-w-325 mx-auto px-4 sm:px-6 lg:px-8 space-y-24 pb-20">
 
         {/* ================= SECTION 1: HERO SECTION ================= */}
         <section id="section-hero" className="text-center max-w-3xl mx-auto space-y-6 pt-4">
@@ -150,7 +150,7 @@ export default function ContactClient({ content: initialContent }: { content: an
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
             {hero?.title}{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-white via-white/80 to-white/40">
               {hero?.highlight}
             </span>
           </h1>
@@ -232,14 +232,14 @@ export default function ContactClient({ content: initialContent }: { content: an
           
           {/* Left Column: Support / Illustration Image Placeholder */}
           <div className="lg:col-span-5 relative space-y-6">
-            <div className="relative w-full aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden bg-[#0d0d0d] border border-white/10 shadow-2xl group">
+            <div className="relative w-full aspect-4/3 lg:aspect-square rounded-3xl overflow-hidden bg-[#0d0d0d] border border-white/10 shadow-2xl group">
               <Image
                 src={getImageSrc(formSection?.image)}
                 alt={getImageAlt(formSection?.image, "YS Innovations Support Team")}
                 fill
                 className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
               
               <div className="absolute bottom-6 left-6 right-6 p-6 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 space-y-2">
                 <div className="flex items-center gap-2 text-white font-bold text-sm">
@@ -475,7 +475,7 @@ export default function ContactClient({ content: initialContent }: { content: an
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
                 
                 <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md border border-white/10 p-3 rounded-xl flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-white" />

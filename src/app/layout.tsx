@@ -83,7 +83,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${poppins.variable} font-sans antialiased`}>
-      <body className="bg-[#050505] text-white font-sans">
+      <body className="bg-background text-white font-sans">
         <Suspense fallback={null}>
           <PreviewIsolator />
         </Suspense>
