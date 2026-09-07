@@ -1,40 +1,80 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { formName, sourceUrl, payload } = body;
+    // 1. IP-based Rate Limiting (max 8 submissions per 2 minutes per IP)
+    const clientIp = getClientIp(request.headers);
+    const limitResult = rateLimit("forms-submit", clientIp, {
+      windowMs: 2 * 60 * 1000,
+      max: 8,
+    });
 
-    if (!formName || !payload) {
+    if (!limitResult.success) {
       return NextResponse.json(
-        { error: "Missing formName or payload" },
+        { error: "Too many submissions. Please wait a couple minutes before submitting again." },
+        { 
+          status: 429,
+          headers: { "Retry-After": "120" },
+        }
+      );
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { formName, sourceUrl, payload, honeypot, website } = body;
+
+    // 2. Anti-Bot Honeypot Defense
+    if (honeypot || website || payload?.honeypot || payload?.website) {
+      return NextResponse.json(
+        { success: true, message: "Form submitted successfully" },
+        { status: 200 }
+      );
+    }
+
+    // 3. Validation
+    if (!formName || !payload || typeof payload !== "object") {
+      return NextResponse.json(
+        { error: "Missing required form data" },
         { status: 400 }
       );
     }
 
-    // Extract client IP and User Agent metadata
-    const ipAddress =
-      request.headers.get("x-forwarded-for")?.split(",")[0] ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
-    const userAgent = request.headers.get("user-agent") || undefined;
+    const cleanFormName = String(formName).trim().slice(0, 100);
+    const cleanSourceUrl = sourceUrl ? String(sourceUrl).trim().slice(0, 250) : null;
 
-    const submission = await prisma.formSubmission.create({
+    // 4. Payload Size Limit Guard (prevent DoS via enormous payloads)
+    const payloadString = JSON.stringify(payload);
+    if (payloadString.length > 50000) {
+      return NextResponse.json(
+        { error: "Submission payload exceeds maximum allowed size" },
+        { status: 413 }
+      );
+    }
+
+    // Extract metadata
+    const userAgent = request.headers.get("user-agent")?.slice(0, 500) || undefined;
+
+    // 5. Store Form Submission
+    await prisma.formSubmission.create({
       data: {
-        formName,
-        sourceUrl: sourceUrl,
+        formName: cleanFormName,
+        sourceUrl: cleanSourceUrl,
         payload,
-        ipAddress,
+        ipAddress: clientIp,
         userAgent,
       },
     });
 
-    return NextResponse.json({ success: true, submission });
+    // 6. Return minimal, sanitized success response (no internal IDs or client IP reflection)
+    return NextResponse.json({
+      success: true,
+      message: "Form submitted successfully",
+    });
   } catch (error: any) {
     console.error("Form submission error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to submit form" },
+      { error: "Failed to submit form. Please try again later." },
       { status: 500 }
     );
   }

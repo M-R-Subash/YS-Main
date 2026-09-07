@@ -48,6 +48,7 @@ export default function BlogSingleClient({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -101,7 +102,8 @@ export default function BlogSingleClient({
           blogId: blog.id,
           name,
           email,
-          content
+          content,
+          honeypot,
         })
       });
 
@@ -334,6 +336,20 @@ export default function BlogSingleClient({
                     <p className="text-xs text-zinc-500">Your email address will not be published. Required fields are marked *</p>
                   </div>
 
+                  {/* Hidden honeypot field for anti-spam bot trap */}
+                  <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+                    <label htmlFor="hp_website_trap">Leave this blank</label>
+                    <input
+                      id="hp_website_trap"
+                      type="text"
+                      name="honeypot"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Name *</label>
@@ -421,7 +437,7 @@ export default function BlogSingleClient({
                           {childReplies.length > 0 && (
                             <div className="ml-6 sm:ml-10 pt-3 border-t border-zinc-200/60 space-y-3">
                               {childReplies.map((reply) => {
-                                const isAdminReply = reply.name.includes("(Admin)");
+                                const isAdminReply = Boolean(reply.isAdmin || (reply.name && reply.name.includes("(Admin)")));
                                 return (
                                   <div key={reply.id} className={`flex gap-3 p-3 rounded-xl border ${isAdminReply ? "bg-amber-500/10 border-amber-500/30" : "bg-white border-zinc-200/80"}`}>
                                     <div className="w-7 h-7 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-[10px] uppercase shrink-0">

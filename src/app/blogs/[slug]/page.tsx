@@ -49,6 +49,7 @@ const getBlog = cache(async (slug: string, isPreview: boolean) => {
           content: true,
           createdAt: true,
           parentId: true,
+          isAdmin: true,
         },
       },
     },

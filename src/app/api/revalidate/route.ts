@@ -1,13 +1,27 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+import crypto from "crypto";
+
+function isSecretValid(providedSecret: string | null | undefined): boolean {
+  const expectedSecret = process.env.REVALIDATION_SECRET || process.env.PREVIEW_SECRET;
+  if (!providedSecret || !expectedSecret) return false;
+
+  const bufProvided = Buffer.from(providedSecret);
+  const bufExpected = Buffer.from(expectedSecret);
+
+  if (bufProvided.length !== bufExpected.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(bufProvided, bufExpected);
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const { secret, path, type } = body;
-    const expectedSecret = process.env.REVALIDATION_SECRET || process.env.PREVIEW_SECRET;
 
-    if (!expectedSecret || secret !== expectedSecret) {
+    if (!isSecretValid(secret)) {
       return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
     }
 
@@ -41,9 +55,7 @@ export async function GET(request: NextRequest) {
   const path = searchParams.get("path");
   const type = (searchParams.get("type") as "page" | "layout") || "page";
 
-  const expectedSecret = process.env.REVALIDATION_SECRET || process.env.PREVIEW_SECRET;
-
-  if (!expectedSecret || secret !== expectedSecret) {
+  if (!isSecretValid(secret)) {
     return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
   }
 

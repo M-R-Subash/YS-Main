@@ -75,6 +75,7 @@ export default function ContactClient({ content: initialContent }: { content: an
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -103,6 +104,7 @@ export default function ContactClient({ content: initialContent }: { content: an
         body: JSON.stringify({
           formName: "Main Contact Form",
           sourceUrl: "/contact",
+          honeypot,
           payload: {
             name: `${formData.firstName} ${formData.lastName}`.trim(),
             email: formData.email,
@@ -282,6 +284,20 @@ export default function ContactClient({ content: initialContent }: { content: an
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Anti-Bot Honeypot Trap */}
+                <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+                  <label htmlFor="hp_contact_bot_field">Leave this empty</label>
+                  <input
+                    id="hp_contact_bot_field"
+                    type="text"
+                    name="honeypot"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
                 {submitStatus === "error" && (
                   <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm">
                     {errorMessage}
