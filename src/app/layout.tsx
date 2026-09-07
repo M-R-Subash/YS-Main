@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PreviewIsolator } from "@/components/PreviewIsolator";
+import PageTransitionLoader from "@/components/PageTransitionLoader";
 import { Suspense } from "react";
 import prisma from "@/lib/prisma";
 
@@ -84,6 +85,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} font-sans antialiased`}>
       <body className="bg-background text-white font-sans">
+        <PageTransitionLoader />
         <Suspense fallback={null}>
           <PreviewIsolator />
         </Suspense>

@@ -19,7 +19,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Prevent browser from smoothly animating scroll-to-top on page switches */
+  scroll-behavior: auto;
 }
 
 body {
@@ -147,4 +148,21 @@ article.prose table tbody tr:not(:first-child) td:last-child {
 article.prose table tbody tr:last-child td {
   border-bottom: none !important;
 }
+
+/* Page Transition Loader Animations */
+@keyframes transitionPulseSlow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(245, 168, 23, 0.4));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 20px rgba(245, 168, 23, 0.8));
+  }
+}
+
+.animate-transition-pulse {
+  animation: transitionPulseSlow 2.4s ease-in-out infinite;
+}
+
 
