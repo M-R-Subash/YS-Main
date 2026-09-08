@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
 export function PreviewIsolator() {
   const searchParams = useSearchParams();
-  const [editorMode, setEditorMode] = useState<string | null>(null);
 
   useEffect(() => {
     const mode = searchParams.get("editor");
     if (mode) {
-      setEditorMode(mode);
       
       // Inject CSS to hide everything except the requested section
       const style = document.createElement("style");

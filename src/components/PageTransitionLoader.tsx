@@ -42,6 +42,24 @@ function PageTransitionLoaderInner() {
     }
   }, []);
 
+  // Complete and gracefully fade out
+  const completeLoading = useCallback(() => {
+    clearAllTimers();
+
+    const elapsed = Date.now() - startTimestampRef.current;
+    const waitTime = Math.max(0, MIN_VISIBLE_MS - elapsed);
+
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsFading(true);
+      const finishTimer = setTimeout(() => {
+        setVisible(false);
+        setIsLoading(false);
+        setIsFading(false);
+      }, 320);
+      return () => clearTimeout(finishTimer);
+    }, waitTime);
+  }, [clearAllTimers]);
+
   // Start the loading state
   const startLoading = useCallback(
     (destinationUrl?: string) => {
@@ -75,26 +93,8 @@ function PageTransitionLoaderInner() {
         completeLoading();
       }, MAX_STALE_MS);
     },
-    [clearAllTimers]
+    [clearAllTimers, completeLoading]
   );
-
-  // Complete and gracefully fade out
-  const completeLoading = useCallback(() => {
-    clearAllTimers();
-
-    const elapsed = Date.now() - startTimestampRef.current;
-    const waitTime = Math.max(0, MIN_VISIBLE_MS - elapsed);
-
-    hideTimeoutRef.current = setTimeout(() => {
-      setIsFading(true);
-      const finishTimer = setTimeout(() => {
-        setVisible(false);
-        setIsLoading(false);
-        setIsFading(false);
-      }, 320);
-      return () => clearTimeout(finishTimer);
-    }, waitTime);
-  }, [clearAllTimers]);
 
   // Listen to route changes to finish loading
   useEffect(() => {

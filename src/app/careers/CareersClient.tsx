@@ -321,7 +321,7 @@ export default function CareersClient({ content: initialContent }: { content: an
             {testimonials.map((testimonial: any, idx: number) => (
               <div key={idx} className="bg-[#181614] border border-white/5 rounded-3xl p-8 sm:p-10 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
                 <p className="text-zinc-300 text-lg leading-relaxed mb-12">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </p>
                 <div className="flex flex-col gap-6 mt-auto">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden bg-zinc-800">

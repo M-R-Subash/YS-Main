@@ -22,9 +22,6 @@ export default function Header({ data }: { data?: HeaderData | null }) {
   const [localData, setLocalData] = useState<HeaderData | null>(null);
 
   useEffect(() => {
-    // Set initial data
-    if (data) setLocalData(data);
-
     // Listen for live preview updates from the CMS iframe
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === "HEADER_UPDATE" && e.data.data) {
@@ -34,7 +31,7 @@ export default function Header({ data }: { data?: HeaderData | null }) {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [data]);
+  }, []);
 
   const displayData = localData || data;
 

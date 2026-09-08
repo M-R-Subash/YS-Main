@@ -108,8 +108,6 @@ export default function Footer({ data }: { data?: FooterData | null }) {
   const hideCTA = pathname === "/careers";
 
   useEffect(() => {
-    if (data) setLocalData(data);
-
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === "FOOTER_UPDATE" && e.data.data) {
         setLocalData(e.data.data);
@@ -118,7 +116,7 @@ export default function Footer({ data }: { data?: FooterData | null }) {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [data]);
+  }, []);
 
   const displayData = localData || data;
 

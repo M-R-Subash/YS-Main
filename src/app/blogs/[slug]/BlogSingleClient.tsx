@@ -24,7 +24,9 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 import FaqSection from "@/components/FaqSection";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 export default function BlogSingleClient({ 
   blog, 
@@ -41,7 +43,7 @@ export default function BlogSingleClient({
   faqsGraphic: any;
   relatedBlogs: any[];
 }) {
-  const [currentUrl, setCurrentUrl] = useState("");
+  const currentUrl = useSyncExternalStore(emptySubscribe, () => window.location.href, () => "");
   const [activeId, setActiveId] = useState<string>("");
 
   const [comments, setComments] = useState<any[]>(blog.comments || []);
@@ -54,8 +56,6 @@ export default function BlogSingleClient({
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
-    setCurrentUrl(window.location.href);
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
