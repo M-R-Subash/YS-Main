@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Role } from "../src/generated/prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 import pg from "pg";
 import dotenv from "dotenv";
 

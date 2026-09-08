@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, Link2, ChevronRight, CornerDownRight, ShieldCheck } from "lucide-react";
+import { Clock, Calendar, Link2, ChevronRight } from "lucide-react";
 
 const FacebookIcon = ({ className }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,7 +45,7 @@ export default function BlogSingleClient({
   const currentUrl = useSyncExternalStore(emptySubscribe, () => window.location.href, () => "");
   const [activeId, setActiveId] = useState<string>("");
 
-  const [comments, setComments] = useState<any[]>(blog.comments || []);
+  const comments: any[] = blog.comments || [];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");

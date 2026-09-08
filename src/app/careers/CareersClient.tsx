@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, TrendingUp, Lightbulb, MapPin, Briefcase, Clock } from "lucide-react";
+import { ArrowUpRight, Lightbulb, MapPin, Briefcase, Clock } from "lucide-react";
 import FaqSection from "@/components/FaqSection";
 
 const DEFAULT_IMAGE = "https://res.cloudinary.com/subash-cms/image/upload/v1787243108/placeholder.png";

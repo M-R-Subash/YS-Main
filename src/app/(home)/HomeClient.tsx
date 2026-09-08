@@ -56,8 +56,6 @@ const LucideIcons = {
   Asterisk,
 };
 
-const IconMap: Record<string, React.ComponentType<any>> = LucideIcons;
-
 const DEFAULT_IMAGE = "https://res.cloudinary.com/subash-cms/image/upload/v1787243108/placeholder.png";
 const getImageSrc = (img: any) => { if (!img) return DEFAULT_IMAGE; if (typeof img === 'string') return img; if (typeof img === 'object' && img.url) return img.url; return DEFAULT_IMAGE; };
 const getImageAlt = (img: any) => { if (typeof img === 'object' && img.alt) return img.alt; return ""; };
