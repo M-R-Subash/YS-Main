@@ -9,7 +9,6 @@ const envSchema = z.object({
     .default("Innovate Today, Lead Tomorrow — Enterprise Software & Cloud Solutions"),
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3001"),
   PREVIEW_SECRET: z.string().min(1, "PREVIEW_SECRET is required"),
-  NEXT_PUBLIC_PREVIEW_SECRET: z.string().min(1, "NEXT_PUBLIC_PREVIEW_SECRET is required"),
   REVALIDATION_SECRET: z.string().min(1, "REVALIDATION_SECRET is required"),
 });
 
@@ -20,7 +19,6 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_APP_DESCRIPTION: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   PREVIEW_SECRET: process.env.PREVIEW_SECRET,
-  NEXT_PUBLIC_PREVIEW_SECRET: process.env.NEXT_PUBLIC_PREVIEW_SECRET,
   REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
 });
 
