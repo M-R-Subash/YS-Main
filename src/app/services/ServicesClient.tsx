@@ -261,7 +261,7 @@ export default function ServicesClient({
   const faqsList: any[] = faqsSection?.list ?? [];
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-[#F5A817]/30">
+    <main className="min-h-screen bg-background text-white selection:bg-primary/30">
       {/* ========================================================================= */}
       {/* SECTION 1: HERO SECTION */}
       {/* ========================================================================= */}
@@ -272,7 +272,7 @@ export default function ServicesClient({
             <div className="lg:col-span-7 flex flex-col items-start space-y-6 md:space-y-8">
               {/* Top Tag Pill */}
               {hero?.badge && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider shadow-xs">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider shadow-xs">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{hero.badge}</span>
                 </div>
@@ -282,7 +282,7 @@ export default function ServicesClient({
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-extrabold tracking-tight leading-[1.12] text-white">
                 {hero?.title}{" "}
                 {hero?.titleHighlight && (
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5A817] via-[#f59e0b] to-[#E07A5F]">
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-[#f59e0b] to-[#E07A5F]">
                     {hero.titleHighlight}
                   </span>
                 )}
@@ -316,7 +316,7 @@ export default function ServicesClient({
                     href={(typeof hero?.cta === "object" ? hero?.cta?.url : hero?.ctaPrimaryLink) || "/contact"}
                     target={hero?.cta?.newTab ? "_blank" : undefined}
                     rel={hero?.cta?.noFollow ? "nofollow" : undefined}
-                    className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#F5A817] hover:bg-[#e59807] text-black font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[#F5A817]/20"
+                    className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-primary hover:bg-primary-hover text-black font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer shadow-lg hover:shadow-primary/20"
                   >
                     <span>{hero?.cta?.text || hero?.ctaPrimaryText}</span>
                     <span className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-0.5">
@@ -341,7 +341,7 @@ export default function ServicesClient({
 
             {/* Right Visual / Image Box */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="w-full max-w-[500px] lg:max-w-none aspect-square rounded-3xl md:rounded-[32px] overflow-hidden relative border border-white/10 shadow-2xl bg-zinc-900">
+              <div className="w-full max-w-125 lg:max-w-none aspect-square rounded-3xl md:rounded-4xl overflow-hidden relative border border-white/10 shadow-2xl bg-zinc-900">
                 <Image
                   src={
                     heroImgError
@@ -354,7 +354,7 @@ export default function ServicesClient({
                   onError={() => setHeroImgError(true)}
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               </div>
             </div>
           </div>
@@ -371,7 +371,7 @@ export default function ServicesClient({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center mb-16 lg:mb-20">
               {/* Left Image */}
               <div className="lg:col-span-6 flex justify-center">
-                <div className="relative w-full aspect-[4/3] rounded-3xl md:rounded-[32px] overflow-hidden bg-zinc-200 border border-zinc-200/80 shadow-xl">
+                <div className="relative w-full aspect-4/3 rounded-3xl md:rounded-4xl overflow-hidden bg-zinc-200 border border-zinc-200/80 shadow-xl">
                   <Image
                     src={
                       section2ImgError
@@ -391,7 +391,7 @@ export default function ServicesClient({
                 {/* Badge */}
                 {whyItMatters?.badge && (
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs">
-                    <span className="text-[#F5A817] text-sm font-bold">✦</span>
+                    <span className="text-primary text-sm font-bold">✦</span>
                     <span className="text-xs font-bold text-zinc-900 tracking-wide">
                       {whyItMatters.badge}
                     </span>
@@ -422,7 +422,7 @@ export default function ServicesClient({
                   return (
                     <div
                       key={idx}
-                      className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/80 shadow-xl shadow-black/[0.03] hover:shadow-2xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                      className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/80 shadow-xl shadow-black/3 hover:shadow-2xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-4">
@@ -430,7 +430,7 @@ export default function ServicesClient({
                             {m.stat}
                           </div>
 
-                          <div className="w-11 h-11 rounded-full bg-[#F5A817] flex items-center justify-center text-black shrink-0 shadow-sm">
+                          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-black shrink-0 shadow-sm">
                             <IconComp className="w-5 h-5 text-black stroke-[2.5]" />
                           </div>
                         </div>
@@ -465,14 +465,14 @@ export default function ServicesClient({
               fill
               className="object-cover opacity-25 filter blur-lg scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-black/85 to-[#050505]" />
+            <div className="absolute inset-0 bg-linear-to-b from-background via-black/85 to-background" />
           </div>
 
           <div className="relative z-10 site-container px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
               {fullStackEngine?.badge && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
-                  <span className="text-[#F5A817]">✦</span>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
+                  <span className="text-primary">✦</span>
                   <span>{fullStackEngine.badge}</span>
                 </div>
               )}
@@ -497,14 +497,14 @@ export default function ServicesClient({
                   return (
                     <div
                       key={idx}
-                      className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 hover:border-[#F5A817]/40 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 shadow-2xl group flex flex-col justify-between"
+                      className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 hover:border-primary/40 rounded-2xl p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 shadow-2xl group flex flex-col justify-between"
                     >
                       <div className="space-y-4">
-                        <div className="w-10 h-10 rounded-xl bg-[#F5A817]/10 border border-[#F5A817]/30 flex items-center justify-center text-[#F5A817] group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                           <IconComp className="w-5 h-5" />
                         </div>
 
-                        <h3 className="text-base font-bold text-white group-hover:text-[#F5A817] transition-colors">
+                        <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors">
                           {item.title}
                         </h3>
 
@@ -522,8 +522,8 @@ export default function ServicesClient({
               <>
                 <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
                   {fullStackEngine?.layersBadge && (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
-                      <span className="text-[#F5A817]">✦</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
+                      <span className="text-primary">✦</span>
                       <span>{fullStackEngine.layersBadge}</span>
                     </div>
                   )}
@@ -542,10 +542,10 @@ export default function ServicesClient({
                       return (
                         <div
                           key={idx}
-                          className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 hover:border-[#F5A817]/40 rounded-2xl p-5 md:p-6 transition-all duration-300 hover:-translate-y-0.5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 group"
+                          className="bg-zinc-900/40 backdrop-blur-xl border border-white/10 hover:border-primary/40 rounded-2xl p-5 md:p-6 transition-all duration-300 hover:-translate-y-0.5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 group"
                         >
-                          <div className="flex items-center gap-4 sm:gap-6 min-w-[280px]">
-                            <div className="w-11 h-11 rounded-xl bg-[#F5A817]/10 border border-[#F5A817]/30 flex items-center justify-center text-[#F5A817] shrink-0 group-hover:scale-105 transition-transform">
+                          <div className="flex items-center gap-4 sm:gap-6 min-w-70">
+                            <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
                               <IconComp className="w-5 h-5" />
                             </div>
 
@@ -553,7 +553,7 @@ export default function ServicesClient({
                               <span className="text-2xl font-extrabold text-zinc-500 font-mono">
                                 {layer.num}
                               </span>
-                              <span className="text-[#F5A817] text-xs font-bold">●</span>
+                              <span className="text-primary text-xs font-bold">●</span>
                               <h3 className="text-base font-bold text-white tracking-tight">
                                 {layer.title}
                               </h3>
@@ -581,14 +581,14 @@ export default function ServicesClient({
       {/* ========================================================================= */}
       {processSection && (
         <section id="section-processSection" className="relative w-full bg-white text-zinc-900 py-24 lg:py-36 overflow-hidden z-10">
-          <div className="absolute top-0 left-0 w-[500px] h-[500px] md:w-[700px] md:h-[700px] bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] md:w-[700px] md:h-[700px] bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none translate-x-1/3 translate-y-1/3" />
+          <div className="absolute top-0 left-0 w-125 h-125 md:w-175 md:h-175 bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 -translate-y-1/3" />
+          <div className="absolute bottom-0 right-0 w-125 h-125 md:w-175 md:h-175 bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none translate-x-1/3 translate-y-1/3" />
 
           <div className="relative z-10 site-container px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
               {processSection?.badge && (
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs mb-6">
-                  <span className="text-[#F5A817] text-sm font-bold">✦</span>
+                  <span className="text-primary text-sm font-bold">✦</span>
                   <span className="text-xs font-bold text-zinc-900 tracking-wide">
                     {processSection.badge}
                   </span>
@@ -613,17 +613,17 @@ export default function ServicesClient({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-14 lg:gap-16 mb-32">
                 {processSteps.map((step: any, idx: number) => (
                   <div key={idx} className="relative pt-7 pl-7 sm:pt-9 sm:pl-9 group">
-                    <div className="absolute top-[-20] left-[-20] w-28 h-28 sm:w-32 sm:h-32 rounded-[28px] bg-[#F5A817] p-3.5 sm:p-4 z-0 flex items-start justify-start shadow-sm">
+                    <div className="absolute top-[-20] left-[-20] w-28 h-28 sm:w-32 sm:h-32 rounded-[28px] bg-primary p-3.5 sm:p-4 z-0 flex items-start justify-start shadow-sm">
                       <span className="text-2xl sm:text-3xl font-extrabold text-black font-sans tracking-tight leading-none pt-0.5 pl-0.5">
                         {step.num}
                       </span>
                     </div>
 
-                    <div className="relative z-10 bg-[#FFFDF6]/80 backdrop-blur-md border border-white/90 rounded-[28px] p-6 sm:p-8 text-center shadow-xl shadow-black/[0.04] hover:shadow-2xl hover:bg-[#FFFDF6]/90 transition-all duration-300 min-h-[170px] flex flex-col items-center justify-center">
+                    <div className="relative z-10 bg-[#FFFDF6]/80 backdrop-blur-md border border-white/90 rounded-[28px] p-6 sm:p-8 text-center shadow-xl shadow-black/4 hover:shadow-2xl hover:bg-[#FFFDF6]/90 transition-all duration-300 min-h-42.5 flex flex-col items-center justify-center">
                       <h3 className="text-base sm:text-lg font-bold text-zinc-900 mb-2 leading-snug">
                         {step.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-zinc-600 font-normal leading-relaxed max-w-[260px] mx-auto">
+                      <p className="text-xs sm:text-sm text-zinc-600 font-normal leading-relaxed max-w-65 mx-auto">
                         {step.desc}
                       </p>
                     </div>
@@ -663,10 +663,10 @@ export default function ServicesClient({
                       return (
                         <div
                           key={idx}
-                          className="bg-white border border-zinc-200/70 rounded-3xl p-6 shadow-md shadow-black/[0.03] hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
+                          className="bg-white border border-zinc-200/70 rounded-3xl p-6 shadow-md shadow-black/3 hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
                         >
                           <div className="space-y-3">
-                            <div className="w-10 h-10 rounded-full bg-[#F5A817] flex items-center justify-center text-black shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black shadow-sm">
                               <IconComp className="w-4 h-4 text-black stroke-[2.5]" />
                             </div>
 
@@ -698,12 +698,12 @@ export default function ServicesClient({
       {/* SECTION 5: CASE STUDIES, STRATEGY ACCORDION & ENTERPRISE ASSURANCE */}
       {/* ========================================================================= */}
       {caseStudiesSection && (
-        <section id="section-caseStudiesSection" className="relative w-full bg-[#050505] text-white py-24 lg:py-36 overflow-hidden border-t border-zinc-900">
+        <section id="section-caseStudiesSection" className="relative w-full bg-background text-white py-24 lg:py-36 overflow-hidden border-t border-zinc-900">
           <div className="site-container px-4 sm:px-6 lg:px-8">
             {/* PART A: FEATURED CASE STUDIES */}
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
               {caseStudiesSection?.badge && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
                   <Lightbulb className="w-3.5 h-3.5" />
                   <span>{caseStudiesSection.badge}</span>
                 </div>
@@ -713,7 +713,7 @@ export default function ServicesClient({
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
                   {caseStudiesSection.title}{" "}
                   {caseStudiesSection?.titleHighlight && (
-                    <span className="text-[#F5A817]">
+                    <span className="text-primary">
                       {caseStudiesSection.titleHighlight}
                     </span>
                   )}
@@ -735,7 +735,7 @@ export default function ServicesClient({
                     key={idx}
                     className="bg-zinc-950/80 border border-zinc-800/80 rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 hover:border-zinc-700 transition-all duration-300 shadow-2xl"
                   >
-                    <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full bg-zinc-900 overflow-hidden">
+                    <div className="lg:col-span-5 relative min-h-65 lg:min-h-full bg-zinc-900 overflow-hidden">
                       <Image
                         src={getImageSrc(cs.image)}
                         alt={cs.title}
@@ -774,7 +774,7 @@ export default function ServicesClient({
 
                       <div className="pt-6 border-t border-zinc-800/80 flex items-center gap-10 sm:gap-16">
                         <div>
-                          <div className="text-2xl sm:text-3xl font-extrabold text-[#F5A817] tracking-tight">
+                          <div className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
                             {cs.stat1}
                           </div>
                           <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
@@ -783,7 +783,7 @@ export default function ServicesClient({
                         </div>
 
                         <div>
-                          <div className="text-2xl sm:text-3xl font-extrabold text-[#F5A817] tracking-tight">
+                          <div className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
                             {cs.stat2}
                           </div>
                           <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
@@ -802,7 +802,7 @@ export default function ServicesClient({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-32">
                 <div className="lg:col-span-6 space-y-8">
                   {caseStudiesSection?.strategyBadge && (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider shadow-xs">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider shadow-xs">
                       <Lightbulb className="w-3.5 h-3.5" />
                       <span>{caseStudiesSection.strategyBadge}</span>
                     </div>
@@ -815,14 +815,14 @@ export default function ServicesClient({
                       "Execution second."}{" "}
                     <br />
                     {caseStudiesSection?.strategyTitleHighlight && (
-                      <span className="text-[#F5A817]">
+                      <span className="text-primary">
                         {caseStudiesSection.strategyTitleHighlight}
                       </span>
                     )}
                   </h2>
 
                   <div className="bg-zinc-950 border border-zinc-800/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
-                    <div className="text-xl font-extrabold text-[#F5A817] font-mono">
+                    <div className="text-xl font-extrabold text-primary font-mono">
                       {strategyPoints[activeStrategyIndex]?.num || "01"}
                     </div>
                     <h3 className="text-lg font-bold text-white">
@@ -833,7 +833,7 @@ export default function ServicesClient({
                     </p>
                     {strategyPoints[activeStrategyIndex]?.footerTag && (
                       <div className="pt-4 border-t border-zinc-800/80">
-                        <span className="text-[10px] font-bold text-[#F5A817] tracking-widest uppercase">
+                        <span className="text-[10px] font-bold text-primary tracking-widest uppercase">
                           {strategyPoints[activeStrategyIndex]?.footerTag}
                         </span>
                       </div>
@@ -853,7 +853,7 @@ export default function ServicesClient({
                         <div className="flex items-center gap-4">
                           <span
                             className={`text-xs sm:text-sm font-mono font-bold ${
-                              isActive ? "text-[#F5A817]" : "text-zinc-500"
+                              isActive ? "text-primary" : "text-zinc-500"
                             }`}
                           >
                             {sp.num}
@@ -861,7 +861,7 @@ export default function ServicesClient({
                           <h4
                             className={`text-sm sm:text-base font-bold transition-colors ${
                               isActive
-                                ? "text-[#F5A817]"
+                                ? "text-primary"
                                 : "text-zinc-300 group-hover:text-white"
                             }`}
                           >
@@ -872,8 +872,8 @@ export default function ServicesClient({
                         <ArrowRight
                           className={`w-4 h-4 transition-transform ${
                             isActive
-                              ? "text-[#F5A817] translate-x-1"
-                              : "text-zinc-600 group-hover:text-zinc-[#F5A817] group-hover:translate-x-0.5"
+                              ? "text-primary translate-x-1"
+                              : "text-zinc-600 group-hover:text-primary group-hover:translate-x-0.5"
                           }`}
                         />
                       </div>
@@ -888,7 +888,7 @@ export default function ServicesClient({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center pt-8">
                 <div className="lg:col-span-6 space-y-6">
                   {caseStudiesSection?.assuranceBadge && (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider shadow-xs">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider shadow-xs">
                       <Lightbulb className="w-3.5 h-3.5" />
                       <span>{caseStudiesSection.assuranceBadge}</span>
                     </div>
@@ -897,7 +897,7 @@ export default function ServicesClient({
                   <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-extrabold text-white tracking-tight leading-[1.12]">
                     {caseStudiesSection.assuranceTitle} <br />
                     {caseStudiesSection?.assuranceHighlight && (
-                      <span className="text-[#F5A817]">
+                      <span className="text-primary">
                         {caseStudiesSection.assuranceHighlight}
                       </span>
                     )}
@@ -911,14 +911,14 @@ export default function ServicesClient({
                 </div>
 
                 <div className="lg:col-span-6 flex justify-center lg:justify-end">
-                  <div className="w-full max-w-[580px] aspect-[4/3] rounded-3xl overflow-hidden relative border border-white/10 shadow-2xl bg-zinc-900">
+                  <div className="w-full max-w-145 aspect-4/3 rounded-3xl overflow-hidden relative border border-white/10 shadow-2xl bg-zinc-900">
                     <Image
                       src={getImageSrc(caseStudiesSection?.assuranceImage)}
                       alt={caseStudiesSection?.assuranceTitle || "Enterprise Delivery"}
                       fill
                       className="object-cover opacity-90"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -937,7 +937,7 @@ export default function ServicesClient({
               <div className="lg:col-span-7 flex flex-col items-start space-y-6">
                 {whoWeAreSection?.badge && (
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs">
-                    <span className="text-[#F5A817] text-sm font-bold">✦</span>
+                    <span className="text-primary text-sm font-bold">✦</span>
                     <span className="text-xs font-bold text-zinc-900 tracking-wide">
                       {whoWeAreSection.badge}
                     </span>
@@ -948,7 +948,7 @@ export default function ServicesClient({
                   <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-zinc-900 tracking-tight leading-[1.15]">
                     {whoWeAreSection.title}{" "}
                     {whoWeAreSection?.titleHighlight && (
-                      <span className="text-[#F5A817]">
+                      <span className="text-primary">
                         {whoWeAreSection.titleHighlight}
                       </span>
                     )}{" "}
@@ -990,7 +990,7 @@ export default function ServicesClient({
               </div>
 
               <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-[480px] aspect-square rounded-3xl overflow-hidden bg-zinc-100 border border-zinc-200 shadow-xl">
+                <div className="relative w-full max-w-120 aspect-square rounded-3xl overflow-hidden bg-zinc-100 border border-zinc-200 shadow-xl">
                   <Image
                     src={getImageSrc(whoWeAreSection?.image)}
                     alt={whoWeAreSection?.title || "Who We Are"}
@@ -1008,7 +1008,7 @@ export default function ServicesClient({
                   return (
                     <div
                       key={idx}
-                      className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/80 shadow-xl shadow-black/[0.03] hover:shadow-2xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                      className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/80 shadow-xl shadow-black/3 hover:shadow-2xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-4">
@@ -1016,7 +1016,7 @@ export default function ServicesClient({
                             {m.stat}
                           </div>
 
-                          <div className="w-11 h-11 rounded-full bg-[#F5A817] flex items-center justify-center text-black shrink-0 shadow-sm">
+                          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-black shrink-0 shadow-sm">
                             <IconComp className="w-5 h-5 text-black stroke-[2.5]" />
                           </div>
                         </div>
@@ -1048,7 +1048,7 @@ export default function ServicesClient({
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
               {problemsSection?.badge && (
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-300 bg-[#FFFDF0] text-xs font-bold text-zinc-900 shadow-xs mb-6">
-                  <span className="text-[#F5A817] text-sm font-bold">✦</span>
+                  <span className="text-primary text-sm font-bold">✦</span>
                   <span>{problemsSection.badge}</span>
                 </div>
               )}
@@ -1057,7 +1057,7 @@ export default function ServicesClient({
                 <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-zinc-900 tracking-tight mb-4 leading-tight">
                   {problemsSection.title}{" "}
                   {problemsSection?.titleHighlight && (
-                    <span className="text-[#F5A817]">
+                    <span className="text-primary">
                       {problemsSection.titleHighlight}
                     </span>
                   )}
@@ -1073,14 +1073,14 @@ export default function ServicesClient({
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
               <div className="lg:col-span-5 flex justify-center">
-                <div className="relative w-full aspect-square lg:aspect-auto min-h-[320px] rounded-3xl overflow-hidden bg-[#18181B] border border-zinc-800 shadow-2xl flex items-center justify-center p-6">
+                <div className="relative w-full aspect-square lg:aspect-auto min-h-80 rounded-3xl overflow-hidden bg-[#18181B] border border-zinc-800 shadow-2xl flex items-center justify-center p-6">
                   <Image
                     src={getImageSrc(problemsSection?.image)}
                     alt={problemsSection?.title || "Business Challenges"}
                     fill
                     className="object-cover opacity-80"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
 
@@ -1121,11 +1121,11 @@ export default function ServicesClient({
       {/* SECTION 8: PERSPECTIVES FROM OUR DELIVERY PRACTICE */}
       {/* ========================================================================= */}
       {perspectivesSection && (
-        <section id="section-perspectivesSection" className="relative w-full bg-[#050505] text-white py-24 lg:py-32 overflow-hidden border-t border-zinc-900">
+        <section id="section-perspectivesSection" className="relative w-full bg-background text-white py-24 lg:py-32 overflow-hidden border-t border-zinc-900">
           <div className="site-container px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-start max-w-3xl mb-16">
               {perspectivesSection?.badge && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F5A817]/30 bg-[#F5A817]/10 text-[#F5A817] text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-6 shadow-xs">
                   <Lightbulb className="w-3.5 h-3.5" />
                   <span>{perspectivesSection.badge}</span>
                 </div>
@@ -1135,7 +1135,7 @@ export default function ServicesClient({
                 <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-extrabold text-white tracking-tight leading-[1.12]">
                   {perspectivesSection.title} <br />
                   {perspectivesSection?.titleHighlight && (
-                    <span className="text-[#F5A817]">
+                    <span className="text-primary">
                       {perspectivesSection.titleHighlight}
                     </span>
                   )}
@@ -1147,23 +1147,23 @@ export default function ServicesClient({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {insightCards.map((card: any, idx: number) => (
                   <div key={idx} className="group cursor-pointer flex flex-col">
-                    <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 mb-4 shadow-xl group-hover:border-[#F5A817]/40 transition-all duration-300">
+                    <div className="relative w-full aspect-16/10 rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 mb-4 shadow-xl group-hover:border-primary/40 transition-all duration-300">
                       <Image
                         src={getImageSrc(card.image)}
                         alt={card.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     </div>
 
                     {card.category && (
-                      <span className="text-[11px] font-bold text-[#F5A817] tracking-wider uppercase mb-2">
+                      <span className="text-[11px] font-bold text-primary tracking-wider uppercase mb-2">
                         {card.category}
                       </span>
                     )}
 
-                    <h3 className="text-base sm:text-lg font-bold text-white mb-2 leading-snug group-hover:text-[#F5A817] transition-colors">
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-2 leading-snug group-hover:text-primary transition-colors">
                       {card.title}
                     </h3>
 

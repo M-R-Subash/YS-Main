@@ -31,7 +31,7 @@ export default function CareersClient({ content: initialContent }: { content: an
 
   return (
     <div className="w-full min-h-screen bg-black text-white flex flex-col pt-24 md:pt-32">
-      <main className="flex-1 w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 w-full max-w-325 mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Hero Section */}
         <section id="section-hero" className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 pt-10 pb-20">
@@ -46,7 +46,7 @@ export default function CareersClient({ content: initialContent }: { content: an
 
             <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-bold text-white tracking-tight leading-[1.1] whitespace-pre-wrap">
               {hero?.title}{" "}
-              <span className="bg-gradient-to-r from-[#FFD700] to-[#FF8C00] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[#FFD700] to-[#FF8C00] bg-clip-text text-transparent">
                 {hero?.highlight}
               </span>
             </h1>
@@ -67,7 +67,7 @@ export default function CareersClient({ content: initialContent }: { content: an
           </div>
 
           <div className="w-full lg:w-[50%] relative flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[600px] aspect-square rounded-[3rem] overflow-hidden bg-zinc-900 border border-white/5">
+            <div className="relative w-full max-w-150 aspect-square rounded-[3rem] overflow-hidden bg-zinc-900 border border-white/5">
               <Image
                 src={getImageSrc(hero?.image)}
                 alt={getImageAlt(hero?.image)}
@@ -75,7 +75,7 @@ export default function CareersClient({ content: initialContent }: { content: an
                 className="object-cover opacity-90"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
 
@@ -105,9 +105,9 @@ export default function CareersClient({ content: initialContent }: { content: an
       
       {/* Why Build Your Career Here Section */}
       <section id="section-whyHere" className="relative w-full bg-white text-zinc-900 py-24 lg:py-32 overflow-hidden">
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-[#FFE4B5]/60 rounded-full blur-[100px] -translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-150 h-150 md:w-200 md:h-200 bg-[#FFE4B5]/60 rounded-full blur-[100px] -translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
-        <div className="relative z-10 max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 lg:gap-12 items-start">
+        <div className="relative z-10 max-w-325 mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 lg:gap-12 items-start">
           
           <div className="w-full lg:w-1/2 space-y-8 lg:pr-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-sm">
@@ -125,7 +125,7 @@ export default function CareersClient({ content: initialContent }: { content: an
               {whyHere?.description}
             </p>
 
-            <div className="relative w-full aspect-[4/3] max-w-[480px] rounded-3xl overflow-hidden mt-8 shadow-xl">
+            <div className="relative w-full aspect-4/3 max-w-120 rounded-3xl overflow-hidden mt-8 shadow-xl">
               <Image 
                 src={getImageSrc(whyHere?.image)} 
                 alt={getImageAlt(whyHere?.image)} 
@@ -152,9 +152,9 @@ export default function CareersClient({ content: initialContent }: { content: an
 
       {/* Open Positions Section */}
       <section id="section-openPositions" className="relative w-full bg-[#FAFAFA] text-zinc-900 py-24 lg:py-32 overflow-hidden">
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-[#FFE4B5]/60 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-150 h-150 md:w-200 md:h-200 bg-[#FFE4B5]/60 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
-        <div className="relative z-10 max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-325 mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col items-start gap-4 mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-sm">
@@ -170,7 +170,7 @@ export default function CareersClient({ content: initialContent }: { content: an
 
           <div className="flex flex-col gap-6">
             {jobs.map((job: any, idx: number) => (
-              <div key={idx} className="group bg-white rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-black/[0.03] border border-black/[0.04] hover:shadow-2xl hover:shadow-black/[0.05] transition-shadow">
+              <div key={idx} className="group bg-white rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-black/3 border border-black/4 hover:shadow-2xl hover:shadow-black/5 transition-shadow">
                 <div className="flex-1 max-w-2xl">
                   <h3 className="text-xl sm:text-2xl font-semibold text-zinc-900 mb-3">{job.title}</h3>
                   <p className="text-sm sm:text-[15px] text-zinc-500 leading-relaxed">
@@ -207,7 +207,7 @@ export default function CareersClient({ content: initialContent }: { content: an
       
       {/* Real People Section */}
       <section id="section-realPeople" className="w-full bg-black text-white py-24 lg:py-32">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-325 mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-16">
             <div className="space-y-4">
@@ -232,7 +232,7 @@ export default function CareersClient({ content: initialContent }: { content: an
 
           <div className="flex flex-col gap-4 sm:gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div className="relative w-full h-full min-h-[300px] sm:min-h-[400px] md:min-h-0 rounded-3xl overflow-hidden group">
+              <div className="relative w-full h-full min-h-75 sm:min-h-100 md:min-h-0 rounded-3xl overflow-hidden group">
                 <Image 
                   src={getImageSrc(realPeople?.image1)} 
                   alt={getImageAlt(realPeople?.image1)} 
@@ -259,7 +259,7 @@ export default function CareersClient({ content: initialContent }: { content: an
                 </div>
               </div>
             </div>
-            <div className="relative w-full aspect-[21/9] sm:aspect-[24/9] md:aspect-[3/1] rounded-3xl overflow-hidden group">
+            <div className="relative w-full aspect-21/9 sm:aspect-24/9 md:aspect-3/1 rounded-3xl overflow-hidden group">
               <Image 
                 src={getImageSrc(realPeople?.image4)} 
                 alt={getImageAlt(realPeople?.image4)} 
@@ -274,7 +274,7 @@ export default function CareersClient({ content: initialContent }: { content: an
 
       {/* Testimonials Section */}
       <section id="section-testimonialsSection" className="w-full bg-black text-white py-24 lg:py-32">
-        <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-325 mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col items-center text-center gap-4 mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1c160a] border border-primary/40 shadow-inner">
