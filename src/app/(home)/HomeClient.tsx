@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import FaqSection from "@/components/FaqSection";
+import { usePreviewContent } from "@/hooks/usePreviewContent";
 import {
   Search,
   PenTool,
@@ -67,38 +68,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeYsProductId, setActiveYsProductId] = useState("leadgen");
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === "PREVIEW_UPDATE_HOMEPAGE" && e.data.content) {
-        setContent(e.data.content);
-      }
-      if (e.data?.type === "SCROLL_TO_SECTION" && e.data.section) {
-        const sectionId = e.data.section;
-        const element = document.querySelector(`[data-section~="${sectionId}"]`) || document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    
-    // Prevent navigation if rendered inside the admin iframe
-    if (window !== window.parent) {
-      const handleIframeClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('a')) {
-          e.preventDefault();
-        }
-      };
-      document.addEventListener('click', handleIframeClick, true);
-      return () => {
-        window.removeEventListener("message", handleMessage);
-        document.removeEventListener('click', handleIframeClick, true);
-      };
-    }
-
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  usePreviewContent(setContent, "PREVIEW_UPDATE_HOMEPAGE");
 
   const projects = content?.projects || [];
   const ysProducts = content?.ysProducts || [];

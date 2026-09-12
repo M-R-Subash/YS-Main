@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import { usePreviewContent } from "@/hooks/usePreviewContent";
 import {
   Phone,
   Mail,
@@ -40,20 +41,7 @@ const TRUST_ICONS = [Timer, Lightbulb, Headphones, TrendingUp];
 export default function ContactClient({ content: initialContent }: { content: any }) {
   const [content, setContent] = useState(initialContent);
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === "PREVIEW_UPDATE_CONTACT" && e.data.content) {
-        setContent(e.data.content);
-      } else if (e.data?.type === "SCROLL_TO_SECTION" && e.data.section) {
-        const el = document.getElementById(`section-${e.data.section}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  usePreviewContent(setContent, "PREVIEW_UPDATE_CONTACT");
 
   const hero = content?.hero;
   const contactCards = content?.contactCards;

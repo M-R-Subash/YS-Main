@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Lightbulb, MapPin, Briefcase, Clock } from "lucide-react";
 import FaqSection from "@/components/FaqSection";
+import { usePreviewContent } from "@/hooks/usePreviewContent";
 
 const DEFAULT_IMAGE = "https://res.cloudinary.com/subash-cms/image/upload/v1787243108/placeholder.png";
 const getImageSrc = (img: any) => { if (!img) return DEFAULT_IMAGE; if (typeof img === 'string') return img; if (typeof img === 'object' && img.url) return img.url; return DEFAULT_IMAGE; };
@@ -13,36 +14,7 @@ const getImageAlt = (img: any) => { if (img && typeof img === 'object' && img.al
 export default function CareersClient({ content: initialContent }: { content: any }) {
   const [content, setContent] = useState(initialContent);
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === "PREVIEW_UPDATE_CAREERS" && e.data.content) {
-        setContent(e.data.content);
-      } else if (e.data?.type === "SCROLL_TO_SECTION" && e.data.section) {
-        const sectionId = e.data.section;
-        const el = document.getElementById(`section-${sectionId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    
-    if (window !== window.parent) {
-      const handleIframeClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('a')) {
-          e.preventDefault();
-        }
-      };
-      document.addEventListener('click', handleIframeClick, true);
-      return () => {
-        window.removeEventListener("message", handleMessage);
-        document.removeEventListener('click', handleIframeClick, true);
-      };
-    }
-
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  usePreviewContent(setContent, "PREVIEW_UPDATE_CAREERS");
 
   const hero = content?.hero;
   const marquee = content?.marquee;

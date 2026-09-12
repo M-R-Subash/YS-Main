@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import { usePreviewContent } from "@/hooks/usePreviewContent";
 import {
   ArrowRight,
   Sparkles,
@@ -229,25 +230,10 @@ export default function ServicesClient({
   const WHO_WE_ARE_ICONS = iconSets.whoWeAre;
   const PROBLEMS_ICONS = iconSets.problems;
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (
-        (e.data?.type === "PREVIEW_UPDATE_DIGITAL_MARKETING" ||
-          e.data?.type === "PREVIEW_UPDATE_PAGE") &&
-        e.data.content
-      ) {
-        setContent(e.data.content);
-      } else if (e.data?.type === "SCROLL_TO_SECTION" && e.data.section) {
-        const sectionId = e.data.section;
-        const el = document.getElementById(`section-${sectionId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  usePreviewContent(setContent, [
+    "PREVIEW_UPDATE_DIGITAL_MARKETING",
+    "PREVIEW_UPDATE_PAGE",
+  ]);
 
   // Extract content sections directly from database content JSON
   const hero = content?.hero;
