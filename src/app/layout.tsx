@@ -15,9 +15,27 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const appName = process.env.NEXT_PUBLIC_APP_NAME || "YS Innovations";
+const appDescription =
+  process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
+  "Innovate Today, Lead Tomorrow — Enterprise Software & Cloud Solutions";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
+
 export const metadata: Metadata = {
-  title: "YS Innovations — Innovate Today, Lead Tomorrow",
-  description: "Innovate Today, Lead Tomorrow",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${appName} — Innovate Today, Lead Tomorrow`,
+    template: `%s | ${appName}`,
+  },
+  description: appDescription,
+  openGraph: {
+    title: appName,
+    description: appDescription,
+    url: siteUrl,
+    siteName: appName,
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 const DEFAULT_HEADER_DATA = {

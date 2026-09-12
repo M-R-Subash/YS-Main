@@ -4,16 +4,22 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+export interface NavLinkUrl {
+  url: string;
+  newTab?: boolean;
+  noFollow?: boolean;
+}
+
 export interface NavItem {
   id: string;
   label: string;
-  url: { url: string; newTab?: boolean; noFollow?: boolean };
-  subItems?: { label: string; url: string }[];
+  url: NavLinkUrl | string;
+  subItems?: { label: string; url: NavLinkUrl | string }[];
 }
 
 export interface HeaderData {
   logo?: { url?: string; alt?: string; title?: string };
-  ctaButton: { text: string; url: string; newTab?: boolean; noFollow?: boolean };
+  ctaButton: { text: string; url: string | NavLinkUrl; newTab?: boolean; noFollow?: boolean };
   navItems: NavItem[];
 }
 
@@ -86,15 +92,28 @@ export default function Header({ data }: { data?: HeaderData | null }) {
                   {activeDropdown === item.id && (
                     <div className="absolute top-full left-0 pt-3 w-66">
                       <div className="bg-white/90 border border-primary/30 rounded-sm p-2 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2">
-                        {item.subItems?.map((sub, idx) => (
-                          <Link
-                            key={idx}
-                            href={sub.url}
-                            className="block px-4 py-2.5 text-xs font-medium text-black hover:text-white hover:bg-black rounded-sm transition-colors"
-                          >
-                            {sub.label}
-                          </Link>
-                        ))}
+                        {item.subItems?.map((sub: any, idx) => {
+                          const subHref =
+                            typeof sub.url === "object"
+                              ? sub.url?.url || "#"
+                              : sub.url || "#";
+                          const isNewTab =
+                            typeof sub.url === "object" ? Boolean(sub.url?.newTab) : false;
+                          const isNoFollow =
+                            typeof sub.url === "object" ? Boolean(sub.url?.noFollow) : false;
+
+                          return (
+                            <Link
+                              key={idx}
+                              href={subHref}
+                              target={isNewTab ? "_blank" : undefined}
+                              rel={isNoFollow ? "nofollow noopener noreferrer" : undefined}
+                              className="block px-4 py-2.5 text-xs font-medium text-black hover:text-white hover:bg-black rounded-sm transition-colors"
+                            >
+                              {sub.label}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -102,12 +121,19 @@ export default function Header({ data }: { data?: HeaderData | null }) {
               );
             }
 
+            const itemHref =
+              typeof item.url === "object" ? item.url?.url || "#" : item.url || "#";
+            const itemNewTab =
+              typeof item.url === "object" ? Boolean(item.url?.newTab) : false;
+            const itemNoFollow =
+              typeof item.url === "object" ? Boolean(item.url?.noFollow) : false;
+
             return (
               <Link
                 key={item.id || `item-${i}`}
-                href={item.url?.url || "#"}
-                target={item.url?.newTab ? "_blank" : undefined}
-                rel={item.url?.noFollow ? "nofollow noopener noreferrer" : undefined}
+                href={itemHref}
+                target={itemNewTab ? "_blank" : undefined}
+                rel={itemNoFollow ? "nofollow noopener noreferrer" : undefined}
                 className="text-sm font-medium text-white hover:text-primary transition-colors"
               >
                 {item.label}
@@ -118,29 +144,47 @@ export default function Header({ data }: { data?: HeaderData | null }) {
 
         {/* Right: Get Started CTA Button */}
         <div className="flex items-center gap-4">
-          <Link
-            href={displayData.ctaButton?.url || "#contact"}
-            target={displayData.ctaButton?.newTab ? "_blank" : undefined}
-            rel={displayData.ctaButton?.noFollow ? "nofollow noopener noreferrer" : undefined}
-            className="bg-primary hover:bg-primary-hover text-black font-semibold text-sm pl-6 pr-2 py-2 rounded-full flex items-center gap-3 shadow-[0_0_20px_var(--color-primary)] hover:shadow-[0_0_30px_var(--color-primary)] transition-all group hover:scale-[1.02]"
-          >
-            <span>{displayData.ctaButton?.text || "Get Started"}</span>
-            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {(() => {
+            const ctaRaw = displayData.ctaButton;
+            const ctaHref =
+              typeof ctaRaw?.url === "object"
+                ? (ctaRaw.url as any)?.url || "#contact"
+                : ctaRaw?.url || "#contact";
+            const ctaNewTab =
+              typeof ctaRaw?.url === "object"
+                ? Boolean((ctaRaw.url as any)?.newTab)
+                : Boolean(ctaRaw?.newTab);
+            const ctaNoFollow =
+              typeof ctaRaw?.url === "object"
+                ? Boolean((ctaRaw.url as any)?.noFollow)
+                : Boolean(ctaRaw?.noFollow);
+
+            return (
+              <Link
+                href={ctaHref}
+                target={ctaNewTab ? "_blank" : undefined}
+                rel={ctaNoFollow ? "nofollow noopener noreferrer" : undefined}
+                className="bg-primary hover:bg-primary-hover text-black font-semibold text-sm pl-6 pr-2 py-2 rounded-full flex items-center gap-3 shadow-[0_0_20px_var(--color-primary)] hover:shadow-[0_0_30px_var(--color-primary)] transition-all group hover:scale-[1.02]"
               >
-                <path d="M7 17L17 7" />
-                <path d="M7 7h10v10" />
-              </svg>
-            </div>
-          </Link>
+                <span>{ctaRaw?.text || "Get Started"}</span>
+                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 17L17 7" />
+                    <path d="M7 7h10v10" />
+                  </svg>
+                </div>
+              </Link>
+            );
+          })()}
         </div>
 
       </div>
