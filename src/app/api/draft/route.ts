@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const secret = searchParams.get("secret");
   const slug = searchParams.get("slug") || "/";
 
-  const expectedSecret = process.env.PREVIEW_SECRET || process.env.REVALIDATION_SECRET;
+  const expectedSecret = process.env.PREVIEW_SECRET;
   if (!secret || secret !== expectedSecret) {
     return NextResponse.json({ message: "Invalid preview secret" }, { status: 401 });
   }

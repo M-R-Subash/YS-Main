@@ -301,7 +301,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
                   </div>
 
                   <div className="flex flex-col flex-1 text-left">
-                    <span className="text-[10px] font-bold text-zinc-400 tracking-wider uppercase mb-2">
+                    <span className="text-[10px] font-bold text-zinc-600 tracking-wider uppercase mb-2">
                       {service.category}
                     </span>
                     <h3 className="text-lg sm:text-xl font-bold text-zinc-900 mb-3">
@@ -314,7 +314,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
                     <div className="mt-auto flex flex-col gap-5">
                       <div className="flex flex-wrap gap-2">
                         {service.tags?.map((tag: string, i: number) => (
-                          <span key={i} className="px-3 py-1 rounded-sm bg-[#FFF9F0] text-[#D97706] text-[11px] font-medium border border-[#FDE68A]">
+                          <span key={i} className="px-3 py-1 rounded-sm bg-[#FFF9F0] text-[#B45309] text-[11px] font-medium border border-[#FDE68A]">
                             {tag}
                           </span>
                         ))}
@@ -378,12 +378,14 @@ export default function HomeClient({ content: initialContent }: { content: any }
                     <div className="absolute bottom-6 right-6 flex gap-2.5 z-20">
                       <button
                         onClick={handlePrevProject}
+                        aria-label="Previous project"
                         className="w-11 h-11 rounded-full bg-white/90 hover:bg-white text-zinc-900 flex items-center justify-center border border-zinc-200 shadow-md backdrop-blur-sm transition-all transform active:scale-95"
                       >
                         <LucideIcons.ChevronLeft className="w-5 h-5 stroke-[2.5]" />
                       </button>
                       <button
                         onClick={handleNextProject}
+                        aria-label="Next project"
                         className="w-11 h-11 rounded-full bg-white/90 hover:bg-white text-zinc-900 flex items-center justify-center border border-zinc-200 shadow-md backdrop-blur-sm transition-all transform active:scale-95"
                       >
                         <LucideIcons.ChevronRight className="w-5 h-5 stroke-[2.5]" />
@@ -435,6 +437,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
                         return (
                           <button
                             key={`${project.id}-${idx}-${activeProjectIndex}`}
+                            aria-label={`Go to project ${project.title}`}
                             onClick={() => {
                               if (!isAnimating) {
                                 setIsAnimating(true);

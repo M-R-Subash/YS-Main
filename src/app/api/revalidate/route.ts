@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
 
 function isSecretValid(providedSecret: string | null | undefined): boolean {
-  const expectedSecret = process.env.REVALIDATION_SECRET || process.env.PREVIEW_SECRET;
+  const expectedSecret = process.env.REVALIDATION_SECRET;
   if (!providedSecret || !expectedSecret) return false;
 
   const bufProvided = Buffer.from(providedSecret);
