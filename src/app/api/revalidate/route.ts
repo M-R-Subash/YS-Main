@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
 
@@ -19,25 +19,30 @@ function isSecretValid(providedSecret: string | null | undefined): boolean {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { secret, path, type } = body;
+    const { secret, path, type, tag } = body;
 
     if (!isSecretValid(secret)) {
       return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
     }
 
-    if (!path) {
-      return NextResponse.json({ message: "Path is required" }, { status: 400 });
+    if (tag) {
+      (revalidateTag as any)(tag, "max");
     }
 
-    if (type === "layout") {
-      revalidatePath(path, "layout");
-    } else {
-      revalidatePath(path, "page");
+    if (path) {
+      if (type === "layout") {
+        revalidatePath(path, "layout");
+        (revalidateTag as any)("global-header", "max");
+        (revalidateTag as any)("global-footer", "max");
+      } else {
+        revalidatePath(path, "page");
+      }
     }
 
     return NextResponse.json({
       revalidated: true,
-      path,
+      path: path || null,
+      tag: tag || null,
       type: type || "page",
       timestamp: Date.now(),
     });
@@ -55,23 +60,30 @@ export async function GET(request: NextRequest) {
   const path = searchParams.get("path");
   const type = (searchParams.get("type") as "page" | "layout") || "page";
 
+  const tag = searchParams.get("tag");
+
   if (!isSecretValid(secret)) {
     return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
   }
 
-  if (!path) {
-    return NextResponse.json({ message: "Path is required" }, { status: 400 });
+  if (tag) {
+    (revalidateTag as any)(tag, "max");
   }
 
-  if (type === "layout") {
-    revalidatePath(path, "layout");
-  } else {
-    revalidatePath(path, "page");
+  if (path) {
+    if (type === "layout") {
+      revalidatePath(path, "layout");
+      (revalidateTag as any)("global-header", "max");
+      (revalidateTag as any)("global-footer", "max");
+    } else {
+      revalidatePath(path, "page");
+    }
   }
 
   return NextResponse.json({
     revalidated: true,
-    path,
+    path: path || null,
+    tag: tag || null,
     type,
     timestamp: Date.now(),
   });

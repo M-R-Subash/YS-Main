@@ -45,11 +45,22 @@ async function getActiveRedirectsMap(): Promise<Map<string, CachedRule>> {
 }
 
 export async function proxy(request: NextRequest) {
-  // Use new URL(request.url) so Next-Url header during client-side navigation doesn't override current request URL
   const targetUrl = new URL(request.url);
   const pathname = targetUrl.pathname;
   const origin = targetUrl.origin;
   const href = targetUrl.href;
+
+  // 0. Intercept legacy preview queries and route through Next.js Draft Mode handler
+  if (
+    targetUrl.searchParams.get("preview") === "true" &&
+    targetUrl.searchParams.has("secret") &&
+    !pathname.startsWith("/api/draft")
+  ) {
+    const draftUrl = new URL("/api/draft", origin);
+    draftUrl.searchParams.set("secret", targetUrl.searchParams.get("secret")!);
+    draftUrl.searchParams.set("slug", pathname);
+    return NextResponse.redirect(draftUrl);
+  }
 
   // 1. Normalize pathname (strip trailing slash except for root "/")
   let normalizedPath = pathname.trim();

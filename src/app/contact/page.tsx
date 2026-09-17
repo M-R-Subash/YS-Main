@@ -1,15 +1,12 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
 import ContactClient from "./ContactClient";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
-
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
 
 const getContactPage = cache(async () => {
   return prisma.page.findUnique({
@@ -28,13 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function ContactPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const isPreview =
-    Boolean(process.env.PREVIEW_SECRET) &&
-    params?.preview === "true" &&
-    params?.secret === process.env.PREVIEW_SECRET;
-
+export default async function ContactPage() {
+  const { isEnabled: isPreview } = await draftMode();
   const page = await getContactPage();
 
   if (!page || !page.content) {

@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
 import ServicesClient from "../ServicesClient";
@@ -9,7 +10,6 @@ export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS 
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 const getServicePage = cache(async (slug: string) => {
@@ -26,6 +26,26 @@ const getServicePage = cache(async (slug: string) => {
   });
 });
 
+export async function generateStaticParams() {
+  try {
+    const pages = await prisma.page.findMany({
+      where: {
+        status: "published",
+        isTrashed: false,
+        slug: { startsWith: "/services/" },
+      },
+      select: { slug: true },
+    });
+
+    return pages.map((p) => ({
+      slug: p.slug.replace(/^\/services\//, ""),
+    }));
+  } catch (err) {
+    console.error("Failed to generateStaticParams for services:", err);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = await getServicePage(slug);
@@ -39,13 +59,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function ServiceSlugPage({ params, searchParams }: PageProps) {
+export default async function ServiceSlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const sParams = await searchParams;
-  const isPreview =
-    Boolean(process.env.PREVIEW_SECRET) &&
-    sParams?.preview === "true" &&
-    sParams?.secret === process.env.PREVIEW_SECRET;
+  const { isEnabled: isPreview } = await draftMode();
 
   const page = await getServicePage(slug);
 

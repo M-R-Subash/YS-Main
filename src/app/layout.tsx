@@ -8,6 +8,7 @@ import { PreviewInspector } from "@/components/PreviewInspector";
 import PageTransitionLoader from "@/components/PageTransitionLoader";
 import { Suspense } from "react";
 import prisma from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -173,37 +174,47 @@ const DEFAULT_FOOTER_DATA = {
   backgroundImage: { url: "", alt: "" },
 };
 
-async function getHeaderData() {
-  try {
-    const header = await prisma.header.findUnique({
-      where: { id: "global" },
-    });
-    return (header?.content as any) || DEFAULT_HEADER_DATA;
-  } catch (error) {
-    console.error("Failed to query header data:", error);
-    return DEFAULT_HEADER_DATA;
-  }
-}
+const getHeaderData = unstable_cache(
+  async () => {
+    try {
+      const header = await prisma.header.findUnique({
+        where: { id: "global" },
+      });
+      return (header?.content as any) || DEFAULT_HEADER_DATA;
+    } catch (error) {
+      console.error("Failed to query header data:", error);
+      return DEFAULT_HEADER_DATA;
+    }
+  },
+  ["global-header"],
+  { revalidate: 86400, tags: ["global-header"] }
+);
 
-async function getFooterData() {
-  try {
-    const footer = await prisma.footer.findUnique({
-      where: { id: "global" },
-    });
-    return (footer?.content as any) || DEFAULT_FOOTER_DATA;
-  } catch (error) {
-    console.error("Failed to query footer data:", error);
-    return DEFAULT_FOOTER_DATA;
-  }
-}
+const getFooterData = unstable_cache(
+  async () => {
+    try {
+      const footer = await prisma.footer.findUnique({
+        where: { id: "global" },
+      });
+      return (footer?.content as any) || DEFAULT_FOOTER_DATA;
+    } catch (error) {
+      console.error("Failed to query footer data:", error);
+      return DEFAULT_FOOTER_DATA;
+    }
+  },
+  ["global-footer"],
+  { revalidate: 86400, tags: ["global-footer"] }
+);
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headerData = await getHeaderData();
-  const footerData = await getFooterData();
+  const [headerData, footerData] = await Promise.all([
+    getHeaderData(),
+    getFooterData(),
+  ]);
 
   return (
     <html lang="en" className={`${poppins.variable} font-sans antialiased`}>

@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
 import BlogSingleClient from "./BlogSingleClient";
@@ -11,15 +12,6 @@ export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS 
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ preview?: string; secret?: string }>;
-}
-
-function checkIsPreview(searchParams?: { preview?: string; secret?: string }) {
-  return (
-    Boolean(process.env.PREVIEW_SECRET) &&
-    searchParams?.preview === "true" &&
-    searchParams?.secret === process.env.PREVIEW_SECRET
-  );
 }
 
 const getBlog = cache(async (slug: string, isPreview: boolean) => {
@@ -56,10 +48,25 @@ const getBlog = cache(async (slug: string, isPreview: boolean) => {
   });
 });
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+export async function generateStaticParams() {
+  try {
+    const blogs = await prisma.blog.findMany({
+      where: { status: "published", isTrashed: false },
+      select: { slug: true },
+    });
+
+    return blogs.map((b) => ({
+      slug: b.slug,
+    }));
+  } catch (err) {
+    console.error("Failed to generateStaticParams for blogs:", err);
+    return [];
+  }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const s = await searchParams;
-  const isPreview = checkIsPreview(s);
+  const { isEnabled: isPreview } = await draftMode();
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) return constructMetadata({ title: "Blog Not Found" });
@@ -72,10 +79,9 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   });
 }
 
-export default async function BlogSinglePage({ params, searchParams }: PageProps) {
+export default async function BlogSinglePage({ params }: PageProps) {
   const { slug } = await params;
-  const s = await searchParams;
-  const isPreview = checkIsPreview(s);
+  const { isEnabled: isPreview } = await draftMode();
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) notFound();

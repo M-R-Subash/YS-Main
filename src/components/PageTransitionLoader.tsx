@@ -4,7 +4,6 @@ import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
-const MIN_VISIBLE_MS = 380;
 const MAX_STALE_MS = 8000;
 
 function PageTransitionLoaderInner() {
@@ -42,22 +41,16 @@ function PageTransitionLoaderInner() {
     }
   }, []);
 
-  // Complete and gracefully fade out
+  // Complete and gracefully fade out immediately
   const completeLoading = useCallback(() => {
     clearAllTimers();
 
-    const elapsed = Date.now() - startTimestampRef.current;
-    const waitTime = Math.max(0, MIN_VISIBLE_MS - elapsed);
-
+    setIsFading(true);
     hideTimeoutRef.current = setTimeout(() => {
-      setIsFading(true);
-      const finishTimer = setTimeout(() => {
-        setVisible(false);
-        setIsLoading(false);
-        setIsFading(false);
-      }, 320);
-      return () => clearTimeout(finishTimer);
-    }, waitTime);
+      setVisible(false);
+      setIsLoading(false);
+      setIsFading(false);
+    }, 150);
   }, [clearAllTimers]);
 
   // Start the loading state
@@ -85,8 +78,12 @@ function PageTransitionLoaderInner() {
 
       startTimestampRef.current = Date.now();
       setIsLoading(true);
-      setVisible(true);
-      setIsFading(false);
+
+      // Only display full overlay if navigation takes longer than 90ms
+      hideTimeoutRef.current = setTimeout(() => {
+        setVisible(true);
+        setIsFading(false);
+      }, 90);
 
       // Safety timeout in case navigation gets cancelled or stuck
       safetyTimeoutRef.current = setTimeout(() => {
@@ -111,7 +108,9 @@ function PageTransitionLoaderInner() {
       }
 
       if (isLoading) {
-        completeLoading();
+        setTimeout(() => {
+          completeLoading();
+        }, 0);
       }
     }
   }, [pathname, searchKey, isLoading, completeLoading]);

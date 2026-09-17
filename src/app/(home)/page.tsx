@@ -1,15 +1,12 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
 import HomeClient from "./HomeClient";
 
-export const revalidate = 86400; // 24 hours (revalidated on-demand via CMS hook)
-
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 const getHomePage = cache(async () => {
   return prisma.page.findUnique({
@@ -26,12 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function Home({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const isPreview =
-    Boolean(process.env.PREVIEW_SECRET) &&
-    params?.preview === "true" &&
-    params?.secret === process.env.PREVIEW_SECRET;
+export default async function Home() {
+  const { isEnabled: isPreview } = await draftMode();
   const page = await getHomePage();
 
   if (!page || !page.content) {
