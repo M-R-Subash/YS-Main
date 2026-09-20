@@ -22,7 +22,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
     <circle cx="4" cy="4" r="2"></circle>
   </svg>
 );
-import FaqSection from "@/components/FaqSection";
+import BlogFaqSection from "@/components/BlogFaqSection";
 import { useState, useEffect, useSyncExternalStore } from "react";
 
 const emptySubscribe = () => () => {};
@@ -243,6 +243,15 @@ export default function BlogSingleClient({
               className="prose prose-zinc prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary-hover max-w-none prose-img:rounded-2xl"
               dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
+
+            {/* Blog FAQ Section */}
+            {faqs && faqs.list && faqs.list.length > 0 && (
+              <BlogFaqSection 
+                list={faqs.list} 
+                title={faqs.title} 
+                badge={faqs.badge} 
+              />
+            )}
 
             {/* Tags */}
             {blog.tags && blog.tags.length > 0 && (
@@ -524,15 +533,6 @@ export default function BlogSingleClient({
         </section>
       )}
 
-      {/* FAQ Section */}
-      {faqs && (
-        <div className="border-t border-border">
-          <FaqSection 
-            {...faqs} 
-            graphicImage={faqsGraphic ? (typeof faqsGraphic === 'object' ? faqsGraphic.url || faqsGraphic.src : faqsGraphic) : undefined} 
-          />
-        </div>
-      )}
     </div>
   );
 }
