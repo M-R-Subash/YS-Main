@@ -14,11 +14,7 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-let client = globalForPrisma.prisma;
-
-if (!client || !(client as any).formSubmission || !(client as any).redirection) {
-  client = createPrismaClient();
-}
+const client = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = client;

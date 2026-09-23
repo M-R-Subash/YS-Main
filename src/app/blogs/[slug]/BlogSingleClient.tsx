@@ -33,7 +33,8 @@ export default function BlogSingleClient({
   toc, 
   faqs,
   faqsGraphic,
-  relatedBlogs 
+  relatedBlogs,
+  isPreview = false,
 }: { 
   blog: any; 
   htmlContent: string; 
@@ -41,6 +42,7 @@ export default function BlogSingleClient({
   faqs: any;
   faqsGraphic: any;
   relatedBlogs: any[];
+  isPreview?: boolean;
 }) {
   const currentUrl = useSyncExternalStore(emptySubscribe, () => window.location.href, () => "");
   const [activeId, setActiveId] = useState<string>("");
@@ -53,6 +55,22 @@ export default function BlogSingleClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Listen for reload or navigation commands from Admin Preview wrapper
+  useEffect(() => {
+    if (!isPreview) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "BLOG_DRAFT_RELOAD") {
+        window.location.reload();
+      } else if (event.data?.type === "BLOG_NAVIGATE" && event.data?.url) {
+        window.location.href = event.data.url;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [isPreview]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -532,6 +550,8 @@ export default function BlogSingleClient({
           </div>
         </section>
       )}
+
+
 
     </div>
   );

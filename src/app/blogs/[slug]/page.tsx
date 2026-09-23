@@ -1,7 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
 import BlogSingleClient from "./BlogSingleClient";
@@ -12,6 +11,7 @@ export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS 
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 const getBlog = cache(async (slug: string, isPreview: boolean) => {
@@ -64,9 +64,12 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { isEnabled: isPreview } = await draftMode();
+  const sParams = searchParams ? await searchParams : {};
+  const secretParam = typeof sParams.secret === "string" ? sParams.secret : undefined;
+  const isPreview = !!secretParam && !!process.env.PREVIEW_SECRET && secretParam === process.env.PREVIEW_SECRET;
+
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) return constructMetadata({ title: "Blog Not Found" });
@@ -79,9 +82,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function BlogSinglePage({ params }: PageProps) {
+export default async function BlogSinglePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const { isEnabled: isPreview } = await draftMode();
+  const sParams = searchParams ? await searchParams : {};
+  const secretParam = typeof sParams.secret === "string" ? sParams.secret : undefined;
+  const isPreview = !!secretParam && !!process.env.PREVIEW_SECRET && secretParam === process.env.PREVIEW_SECRET;
+
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) notFound();
@@ -90,6 +96,31 @@ export default async function BlogSinglePage({ params }: PageProps) {
   const effectiveData = isPreview && (blog as any).draftContent
     ? (typeof (blog as any).draftContent === "string" ? JSON.parse((blog as any).draftContent) : (blog as any).draftContent)
     : blog;
+
+  // Fully merge staged draft content into effectiveBlog for live preview
+  const effectiveBlog = isPreview && (blog as any).draftContent
+    ? {
+        ...blog,
+        title: effectiveData.title ?? blog.title,
+        content: effectiveData.content ?? blog.content,
+        featuredImage: effectiveData.featuredImage ?? blog.featuredImage,
+        excerpt: effectiveData.excerpt ?? blog.excerpt,
+        tags: effectiveData.tags ?? blog.tags,
+        categories: effectiveData.categories ?? blog.categories,
+        readingTime: effectiveData.readingTime ?? blog.readingTime,
+        seo: effectiveData.seo || (effectiveData.metaTitle ? {
+          metaTitle: effectiveData.metaTitle,
+          metaDesc: effectiveData.metaDesc,
+          focusKeyword: effectiveData.focusKeyword,
+          ogImage: effectiveData.ogImage,
+          ogTitle: effectiveData.ogTitle,
+          ogDesc: effectiveData.ogDesc,
+          canonicalUrl: effectiveData.canonicalUrl,
+          noIndex: effectiveData.noIndex,
+        } : blog.seo),
+      }
+    : blog;
+
   const rawBlogFaqs = (effectiveData?.content as any)?.faqs || (effectiveData as any)?.faqs || (blog?.content as any)?.faqs;
   const blogFaqList = Array.isArray(rawBlogFaqs)
     ? rawBlogFaqs.filter((item: any) => item && (item.question?.trim() || item.answer?.trim()))
@@ -117,8 +148,8 @@ export default async function BlogSinglePage({ params }: PageProps) {
   } : null;
 
   // Get related blogs
-  const categoryFilter = Array.isArray(blog.categories) && blog.categories.length > 0 
-    ? { hasSome: blog.categories } 
+  const categoryFilter = Array.isArray(effectiveBlog.categories) && effectiveBlog.categories.length > 0 
+    ? { hasSome: effectiveBlog.categories } 
     : undefined;
 
   const authorSelect = {
@@ -159,32 +190,32 @@ export default async function BlogSinglePage({ params }: PageProps) {
     relatedBlogs.push(...moreRelated);
   }
 
-  const toc = generateToc(blog.content);
+  const toc = generateToc(effectiveBlog.content);
   if (blogFaqList.length > 0) {
     toc.push({ id: "faq", text: "Frequently Asked Questions" });
   }
-  const htmlContent = renderTipTap(blog.content);
+  const htmlContent = renderTipTap(effectiveBlog.content);
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://ysinnovations.com";
-  const articleUrl = `${siteUrl}/blogs/${blog.slug}`;
+  const articleUrl = `${siteUrl}/blogs/${effectiveBlog.slug}`;
 
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": blog.seo?.metaTitle || blog.title,
-    "description": blog.seo?.metaDesc || blog.excerpt || "",
-    "image": blog.featuredImage ? [blog.featuredImage] : undefined,
-    "datePublished": blog.publishedAt ? new Date(blog.publishedAt).toISOString() : new Date(blog.createdAt).toISOString(),
-    "dateModified": new Date(blog.updatedAt).toISOString(),
+    "headline": effectiveBlog.seo?.metaTitle || effectiveBlog.title,
+    "description": effectiveBlog.seo?.metaDesc || effectiveBlog.excerpt || "",
+    "image": effectiveBlog.featuredImage ? [effectiveBlog.featuredImage] : undefined,
+    "datePublished": effectiveBlog.publishedAt ? new Date(effectiveBlog.publishedAt).toISOString() : new Date(effectiveBlog.createdAt).toISOString(),
+    "dateModified": new Date(effectiveBlog.updatedAt).toISOString(),
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": articleUrl,
     },
     "author": {
       "@type": "Person",
-      "name": blog.seo?.authorName || blog.author?.name || "YS Innovations",
-      ...(blog.seo?.authorRole || blog.author?.authorRole
-        ? { "jobTitle": blog.seo?.authorRole || blog.author?.authorRole }
+      "name": effectiveBlog.seo?.authorName || effectiveBlog.author?.name || "YS Innovations",
+      ...(effectiveBlog.seo?.authorRole || effectiveBlog.author?.authorRole
+        ? { "jobTitle": effectiveBlog.seo?.authorRole || effectiveBlog.author?.authorRole }
         : {}),
     },
     "publisher": {
@@ -196,7 +227,7 @@ export default async function BlogSinglePage({ params }: PageProps) {
         "url": `${siteUrl}/images/logo.png`,
       },
     },
-    ...(Array.isArray(blog.tags) && blog.tags.length > 0 ? { "keywords": blog.tags.join(", ") } : {}),
+    ...(Array.isArray(effectiveBlog.tags) && effectiveBlog.tags.length > 0 ? { "keywords": effectiveBlog.tags.join(", ") } : {}),
   };
 
   const breadcrumbSchema = {
@@ -218,7 +249,7 @@ export default async function BlogSinglePage({ params }: PageProps) {
       {
         "@type": "ListItem",
         "position": 3,
-        "name": blog.title,
+        "name": effectiveBlog.title,
         "item": articleUrl,
       },
     ],
@@ -241,12 +272,13 @@ export default async function BlogSinglePage({ params }: PageProps) {
         />
       )}
       <BlogSingleClient 
-        blog={blog} 
+        blog={effectiveBlog} 
         htmlContent={htmlContent} 
         toc={toc} 
         faqs={faqs} 
         faqsGraphic={faqsGraphic}
-        relatedBlogs={relatedBlogs} 
+        relatedBlogs={relatedBlogs}
+        isPreview={isPreview}
       />
     </>
   );

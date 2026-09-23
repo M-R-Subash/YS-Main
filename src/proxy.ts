@@ -50,8 +50,9 @@ export async function proxy(request: NextRequest) {
   const origin = targetUrl.origin;
   const href = targetUrl.href;
 
-  // 0. Intercept legacy preview queries and route through Next.js Draft Mode handler
+  // 0. Intercept legacy preview queries for non-blog pages only (blogs use isolated token/secret without cookies)
   if (
+    !pathname.startsWith("/blogs") &&
     targetUrl.searchParams.get("preview") === "true" &&
     targetUrl.searchParams.has("secret") &&
     !pathname.startsWith("/api/draft")
