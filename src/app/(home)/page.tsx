@@ -1,9 +1,9 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
+import { isPreviewAuthorized, getEffectiveContent, type SearchParamsPromise } from "@/lib/preview";
 import HomeClient from "./HomeClient";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
@@ -23,11 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function Home() {
-  const { isEnabled: isPreview } = await draftMode();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: SearchParamsPromise;
+}) {
+  const isPreview = await isPreviewAuthorized(searchParams);
   const page = await getHomePage();
 
-  if (!page || !page.content) {
+  if (!page || (!page.content && !page.draftContent)) {
     notFound();
   }
 
@@ -39,5 +43,7 @@ export default async function Home() {
     notFound();
   }
 
-  return <HomeClient content={page.content} />;
+  const content = getEffectiveContent(page, isPreview);
+
+  return <HomeClient content={content} />;
 }

@@ -1,15 +1,16 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { draftMode } from "next/headers";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
+import { isPreviewAuthorized, getEffectiveContent, type SearchParamsPromise } from "@/lib/preview";
 import ServicesClient from "../services/ServicesClient";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams?: SearchParamsPromise;
 }
 
 const getDynamicPage = cache(async (slug: string) => {
@@ -56,10 +57,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function DynamicSlugPage({ params }: PageProps) {
+export default async function DynamicSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const { isEnabled: isPreview } = await draftMode();
-
+  const isPreview = await isPreviewAuthorized(searchParams);
   const page = await getDynamicPage(slug);
 
   if (!page || page.isTrashed) {
@@ -70,5 +70,7 @@ export default async function DynamicSlugPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ServicesClient content={page.content || null} slug={slug} />;
+  const content = getEffectiveContent(page, isPreview);
+
+  return <ServicesClient content={content} slug={slug} />;
 }

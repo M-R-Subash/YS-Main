@@ -7,11 +7,13 @@ import BlogSingleClient from "./BlogSingleClient";
 import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
+import { isPreviewAuthorized, type SearchParamsPromise } from "@/lib/preview";
+
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams?: SearchParamsPromise;
 }
 
 const getBlog = cache(async (slug: string, isPreview: boolean) => {
@@ -66,10 +68,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const sParams = searchParams ? await searchParams : {};
-  const secretParam = typeof sParams.secret === "string" ? sParams.secret : undefined;
-  const isPreview = !!secretParam && !!process.env.PREVIEW_SECRET && secretParam === process.env.PREVIEW_SECRET;
-
+  const isPreview = await isPreviewAuthorized(searchParams);
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) return constructMetadata({ title: "Blog Not Found" });
@@ -84,10 +83,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
 export default async function BlogSinglePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const sParams = searchParams ? await searchParams : {};
-  const secretParam = typeof sParams.secret === "string" ? sParams.secret : undefined;
-  const isPreview = !!secretParam && !!process.env.PREVIEW_SECRET && secretParam === process.env.PREVIEW_SECRET;
-
+  const isPreview = await isPreviewAuthorized(searchParams);
   const blog = await getBlog(slug, isPreview);
 
   if (!blog) notFound();

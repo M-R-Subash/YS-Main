@@ -50,19 +50,6 @@ export async function proxy(request: NextRequest) {
   const origin = targetUrl.origin;
   const href = targetUrl.href;
 
-  // 0. Intercept legacy preview queries for non-blog pages only (blogs use isolated token/secret without cookies)
-  if (
-    !pathname.startsWith("/blogs") &&
-    targetUrl.searchParams.get("preview") === "true" &&
-    targetUrl.searchParams.has("secret") &&
-    !pathname.startsWith("/api/draft")
-  ) {
-    const draftUrl = new URL("/api/draft", origin);
-    draftUrl.searchParams.set("secret", targetUrl.searchParams.get("secret")!);
-    draftUrl.searchParams.set("slug", pathname);
-    return NextResponse.redirect(draftUrl);
-  }
-
   // 1. Normalize pathname (strip trailing slash except for root "/")
   let normalizedPath = pathname.trim();
   if (normalizedPath.length > 1 && normalizedPath.endsWith("/")) {
