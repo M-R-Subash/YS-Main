@@ -4,9 +4,13 @@ import prisma from "@/lib/prisma";
 
 export async function getBlogs({ page = 1, limit = 15, category = "" }) {
   const skip = (page - 1) * limit;
+  const now = new Date();
   const where: any = {
-    status: "published",
     isTrashed: false,
+    OR: [
+      { status: "published" },
+      { status: "scheduled", scheduledAt: { lte: now } },
+    ],
   };
   
   if (category && category !== "All") {
@@ -20,7 +24,7 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
       where,
       skip,
       take: limit,
-      orderBy: { publishedAt: "desc" },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       select: {
         id: true,
         title: true,

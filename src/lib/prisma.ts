@@ -14,7 +14,11 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-const client = globalForPrisma.prisma ?? createPrismaClient();
+let client = globalForPrisma.prisma;
+
+if (!client || !(client as any)._runtimeDataModel?.models?.Blog?.fields?.some((f: any) => f.name === "scheduledAt")) {
+  client = createPrismaClient();
+}
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = client;

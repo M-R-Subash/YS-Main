@@ -17,11 +17,19 @@ interface PageProps {
 }
 
 const getBlog = cache(async (slug: string, isPreview: boolean) => {
+  const now = new Date();
   return prisma.blog.findFirst({
     where: {
       slug,
       isTrashed: false,
-      ...(isPreview ? {} : { status: "published" }),
+      ...(isPreview
+        ? {}
+        : {
+            OR: [
+              { status: "published" },
+              { status: "scheduled", scheduledAt: { lte: now } },
+            ],
+          }),
     },
     include: {
       author: {
@@ -52,8 +60,15 @@ const getBlog = cache(async (slug: string, isPreview: boolean) => {
 
 export async function generateStaticParams() {
   try {
+    const now = new Date();
     const blogs = await prisma.blog.findMany({
-      where: { status: "published", isTrashed: false },
+      where: {
+        isTrashed: false,
+        OR: [
+          { status: "published" },
+          { status: "scheduled", scheduledAt: { lte: now } },
+        ],
+      },
       select: { slug: true },
     });
 
@@ -158,10 +173,18 @@ export default async function BlogSinglePage({ params, searchParams }: PageProps
     },
   };
 
+  const now = new Date();
+  const publicBlogFilter = {
+    isTrashed: false,
+    OR: [
+      { status: "published" },
+      { status: "scheduled", scheduledAt: { lte: now } },
+    ],
+  };
+
   const relatedBlogs = await prisma.blog.findMany({
     where: {
-      status: "published",
-      isTrashed: false,
+      ...publicBlogFilter,
       id: { not: blog.id },
       ...(categoryFilter ? { categories: categoryFilter } : {})
     },
@@ -174,8 +197,7 @@ export default async function BlogSinglePage({ params, searchParams }: PageProps
   if (relatedBlogs.length < 3) {
     const moreRelated = await prisma.blog.findMany({
       where: {
-        status: "published",
-        isTrashed: false,
+        ...publicBlogFilter,
         id: { not: blog.id },
         NOT: { id: { in: relatedBlogs.map(b => b.id) } }
       },
