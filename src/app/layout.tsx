@@ -9,6 +9,7 @@ import PageTransitionLoader from "@/components/PageTransitionLoader";
 import { Suspense } from "react";
 import prisma from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
+import { config } from "@/lib/config";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -17,11 +18,9 @@ const poppins = Poppins({
   display: "swap",
 });
 
-const appName = process.env.NEXT_PUBLIC_APP_NAME || "YS Innovations";
-const appDescription =
-  process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
-  "Innovate Today, Lead Tomorrow — Enterprise Software & Cloud Solutions";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
+const appName = config.app.name;
+const appDescription = config.app.description;
+const siteUrl = config.app.siteUrl;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

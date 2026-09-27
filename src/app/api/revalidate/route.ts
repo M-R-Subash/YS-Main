@@ -1,9 +1,10 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
+import { serverConfig } from "@/lib/config/server";
 
 function isSecretValid(providedSecret: string | null | undefined): boolean {
-  const expectedSecret = process.env.REVALIDATION_SECRET;
+  const expectedSecret = serverConfig.security.revalidationSecret;
   if (!providedSecret || !expectedSecret) return false;
 
   const bufProvided = Buffer.from(providedSecret);

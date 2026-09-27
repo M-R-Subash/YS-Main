@@ -5,6 +5,8 @@
  * Prevents third-party cookie blocking issues and eliminates draft data collisions on the live website.
  */
 
+import { serverConfig } from "@/lib/config/server";
+
 export type SearchParamsPromise =
   | Promise<{ [key: string]: string | string[] | undefined }>
   | undefined;
@@ -24,7 +26,7 @@ export async function isPreviewAuthorized(
   try {
     const params = await searchParams;
     const secret = typeof params?.secret === "string" ? params.secret : undefined;
-    const expectedSecret = process.env.PREVIEW_SECRET;
+    const expectedSecret = serverConfig.security.previewSecret;
 
     if (!secret || !expectedSecret) {
       return false;

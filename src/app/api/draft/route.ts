@@ -1,13 +1,14 @@
 import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { type NextRequest, NextResponse } from "next/server";
+import { serverConfig } from "@/lib/config/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
   const slug = searchParams.get("slug") || "/";
 
-  const expectedSecret = process.env.PREVIEW_SECRET;
+  const expectedSecret = serverConfig.security.previewSecret;
   if (!secret || secret !== expectedSecret) {
     return NextResponse.json({ message: "Invalid preview secret" }, { status: 401 });
   }

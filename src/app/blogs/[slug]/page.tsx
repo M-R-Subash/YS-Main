@@ -8,6 +8,7 @@ import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
 import { isPreviewAuthorized, type SearchParamsPromise } from "@/lib/preview";
+import { config } from "@/lib/config";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
@@ -213,8 +214,7 @@ export default async function BlogSinglePage({ params, searchParams }: PageProps
     toc.push({ id: "faq", text: "Frequently Asked Questions" });
   }
   const htmlContent = renderTipTap(effectiveBlog.content);
-
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://ysinnovations.com";
+  const siteUrl = config.app.siteUrl;
   const articleUrl = `${siteUrl}/blogs/${effectiveBlog.slug}`;
 
   const articleSchema = {
