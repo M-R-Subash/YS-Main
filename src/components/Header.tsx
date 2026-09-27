@@ -233,7 +233,7 @@ export default function Header({ data }: { data?: HeaderData | null }) {
       {/* Mobile & Tablet Backdrop overlay */}
       <div
         onClick={() => setIsMobileMenuOpen(false)}
-        className={`lg:hidden fixed inset-0 top-[72px] bg-black/60 backdrop-blur-xs z-40 transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 top-18 bg-black/60 backdrop-blur-xs z-40 transition-opacity duration-300 ${
           isMobileMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

@@ -146,7 +146,7 @@ export default function BlogSingleClient({
   return (
     <div className="bg-[#fafafa] min-h-screen text-zinc-900 selection:bg-primary/30">
       {/* Hero Section */}
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+      <div className="max-w-325 mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           {/* Left Side: Content — 60% */}
           <div className="w-full lg:w-[60%] order-2 lg:order-1">
@@ -200,7 +200,7 @@ export default function BlogSingleClient({
           {/* Right Side: Image — 40% */}
           {blog.featuredImage && (
             <div className="w-full lg:w-[40%] shrink-0 order-1 lg:order-2">
-              <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden bg-zinc-100 shadow-2xl">
+              <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden bg-zinc-100 shadow-2xl">
                 <img
                   src={blog.featuredImage}
                   alt={blog.title}
@@ -212,12 +212,12 @@ export default function BlogSingleClient({
         </div>
       </div>
 
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="bg-zinc-50 border border-zinc-200/80 rounded-[32px] p-4 sm:p-6 lg:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+      <div className="max-w-325 mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div className="bg-zinc-50 border border-zinc-200/80 rounded-4xl p-4 sm:p-6 lg:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           
           {/* TOC Sidebar */}
           {toc.length > 0 && (
-            <aside className="w-full lg:w-[280px] shrink-0 lg:sticky lg:top-32 order-2 lg:order-1">
+            <aside className="w-full lg:w-70 shrink-0 lg:sticky lg:top-32 order-2 lg:order-1">
               <div className="bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden">
                 {/* TOC Header */}
                 <div className="px-5 py-4 bg-zinc-50 border-b border-zinc-100">
@@ -507,7 +507,7 @@ export default function BlogSingleClient({
       {/* Related Blogs */}
       {relatedBlogs && relatedBlogs.length > 0 && (
         <section className="py-20 bg-zinc-50 border-t border-zinc-200">
-          <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-325 mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-extrabold mb-12 text-center text-zinc-900">Related Articles</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
