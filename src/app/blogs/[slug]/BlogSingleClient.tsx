@@ -32,7 +32,6 @@ export default function BlogSingleClient({
   htmlContent, 
   toc, 
   faqs,
-  faqsGraphic,
   relatedBlogs,
   isPreview = false,
 }: { 
@@ -40,7 +39,7 @@ export default function BlogSingleClient({
   htmlContent: string; 
   toc: { id: string; text: string }[];
   faqs: any;
-  faqsGraphic: any;
+  faqsGraphic?: any;
   relatedBlogs: any[];
   isPreview?: boolean;
 }) {

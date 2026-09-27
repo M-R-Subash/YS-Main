@@ -44,11 +44,13 @@ export default function Header({ data }: { data?: HeaderData | null }) {
   const [localData, setLocalData] = useState<HeaderData | null>(null);
 
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Close mobile menu on page navigation
-  useEffect(() => {
+  // Close mobile menu on page navigation (render-phase state adjustment per React guidelines)
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setIsMobileMenuOpen(false);
-  }, [pathname]);
+  }
 
   // Close mobile menu on window resize to desktop
   useEffect(() => {
