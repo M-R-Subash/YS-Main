@@ -419,7 +419,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
 
                 <div className="contents lg:flex lg:flex-col lg:col-span-5 lg:order-2 lg:justify-center lg:h-full lg:py-2 lg:min-h-90 text-left">
                   {/* Project Details */}
-                  <div className="order-1 lg:order-none space-y-3 sm:space-y-4 transition-all duration-800ms ease-[cubic-bezier(0.16,1,0.3,1)]">
+                  <div className="order-1 lg:order-0 space-y-3 sm:space-y-4 transition-all duration-800ms ease-[cubic-bezier(0.16,1,0.3,1)]">
                     <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-zinc-900 leading-snug">
                       {activeProject.title}
                     </h3>
@@ -453,7 +453,7 @@ export default function HomeClient({ content: initialContent }: { content: any }
                   </div>
 
                   {/* Project Selector Tabs */}
-                  <div className="order-3 lg:order-none pt-5 lg:pt-8 border-t border-zinc-200/80 mt-4 lg:mt-8 w-full">
+                  <div className="order-3 lg:order-0 pt-5 lg:pt-8 border-t border-zinc-200/80 mt-4 lg:mt-8 w-full">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-zinc-400">
@@ -1025,8 +1025,8 @@ export default function HomeClient({ content: initialContent }: { content: any }
           </div>
 
           <div className="w-full py-4 sm:py-6 overflow-hidden relative border-t border-white/10 group">
-            <div className="absolute inset-y-0 left-0 w-10 sm:w-20 md:w-30 bg-gradient-to-r from-black/80 to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute inset-y-0 right-0 w-10 sm:w-20 md:w-30 bg-gradient-to-l from-black/80 to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 left-0 w-10 sm:w-20 md:w-30 bg-linear-to-r from-black/80 to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 right-0 w-10 sm:w-20 md:w-30 bg-linear-to-l from-black/80 to-transparent z-10 pointer-events-none"></div>
 
             <div className="flex w-max animate-marquee [animation-duration:40s] group-hover:[animation-play-state:paused] gap-6 sm:gap-10 md:gap-14 lg:gap-18">
               {whyChooseUs.marquee.map((text: string, idx: number) => (
