@@ -43,31 +43,31 @@ export default function FaqSection({
   };
 
   return (
-    <section className="w-full bg-[#ffffff] py-16 sm:py-24">
+    <section className="w-full bg-[#ffffff] py-14 sm:py-20 lg:py-28">
       <div className="max-w-[1300px] mx-auto w-full px-4 sm:px-6 lg:px-8">
         {/* If no graphic image is provided, display a clean standalone section header */}
         {!graphicImage && (title || badge) && (
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14 lg:mb-16">
             {badge && (
-              <div className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 bg-zinc-100 border border-zinc-200/80 rounded-full">
+              <div className="inline-flex items-center gap-2 mb-4 sm:mb-6 px-4 py-1.5 bg-zinc-100 border border-zinc-200/80 rounded-full">
                 <Lightbulb className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <span className="text-zinc-800 text-xs sm:text-[13px] font-bold tracking-wide">{badge}</span>
+                <span className="text-zinc-800 text-xs font-semibold tracking-wide">{badge}</span>
               </div>
             )}
             {title && (
-              <h2 className="text-zinc-900 text-3xl sm:text-4xl font-extrabold tracking-tight">
+              <h2 className="text-zinc-900 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
                 {title}
               </h2>
             )}
           </div>
         )}
 
-        <div className={`flex flex-col ${graphicImage ? "lg:flex-row gap-12 lg:gap-16 items-start lg:items-center" : "max-w-4xl mx-auto items-stretch"}`}>
+        <div className={`flex flex-col ${graphicImage ? "lg:flex-row gap-8 sm:gap-12 lg:gap-16 items-start lg:items-center" : "max-w-4xl mx-auto items-stretch"}`}>
           
           {/* Left Side: Graphic + Text (Only when graphicImage is present) */}
           {graphicImage && (
             <div className="w-full lg:w-[45%] flex justify-center shrink-0">
-              <div className="relative w-full max-w-[500px] lg:max-w-none aspect-[0.93] rounded-[32px] overflow-hidden shadow-2xl ">
+              <div className="relative w-full max-w-[500px] lg:max-w-none aspect-[0.93] rounded-2xl sm:rounded-3xl lg:rounded-[32px] overflow-hidden shadow-2xl">
                 <Image 
                   src={graphicImage} 
                   alt="FAQ Background" 
@@ -77,23 +77,23 @@ export default function FaqSection({
                 />
                 <div className="absolute inset-0 flex flex-col justify-between">
                   {/* Top Section: FAQ Badge & Heading */}
-                  <div className="p-8 sm:p-10 lg:p-12 text-left">
-                    <div className="inline-flex items-center gap-2 mb-5 px-4 py-2 bg-black/40 backdrop-blur-md rounded-full w-max">
+                  <div className="p-6 sm:p-8 lg:p-12 text-left">
+                    <div className="inline-flex items-center gap-2 mb-4 sm:mb-5 px-3.5 sm:px-4 py-1.5 bg-black/40 backdrop-blur-md rounded-full w-max">
                       <Lightbulb className="w-4 h-4 text-[#FFA918] fill-[#FFA918]" />
-                      <span className="text-white text-[13px] font-bold tracking-wide">{badge || "FAQ"}</span>
+                      <span className="text-white text-xs sm:text-[13px] font-bold tracking-wide">{badge || "FAQ"}</span>
                     </div>
-                    <h2 className="text-white text-4xl sm:text-[42px] font-bold leading-[1.1] tracking-tight">
+                    <h2 className="text-white text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
                       {title}
                     </h2>
                   </div>
 
                   {/* Bottom Section: Graphic Title Lines */}
                   {(graphicTitleLine1 || graphicTitleLine2 || graphicTitleLine3 || graphicTitleLine4) && (
-                    <div className="self-end pb-8 pr-12 sm:pb-8 sm:pr-8 w-[35%] flex flex-col items-start text-left">
-                      {graphicTitleLine1 && <span className="text-white text-xl sm:text-[22px] font-bold leading-tight">{graphicTitleLine1}</span>}
-                      {graphicTitleLine2 && <span className="text-white text-5xl sm:text-[30px] font-extrabold leading-[1.1] my-1">{graphicTitleLine2}</span>}
-                      {graphicTitleLine3 && <span className="text-white text-xl sm:text-[22px] font-bold leading-tight">{graphicTitleLine3}</span>}
-                      {graphicTitleLine4 && <span className="text-white text-xl sm:text-[22px] font-bold leading-tight">{graphicTitleLine4}</span>}
+                    <div className="self-end pb-6 pr-8 sm:pb-8 sm:pr-8 w-[40%] sm:w-[35%] flex flex-col items-start text-left">
+                      {graphicTitleLine1 && <span className="text-white text-base sm:text-xl lg:text-[22px] font-bold leading-tight">{graphicTitleLine1}</span>}
+                      {graphicTitleLine2 && <span className="text-white text-3xl sm:text-4xl lg:text-[30px] font-extrabold leading-[1.1] my-1">{graphicTitleLine2}</span>}
+                      {graphicTitleLine3 && <span className="text-white text-base sm:text-xl lg:text-[22px] font-bold leading-tight">{graphicTitleLine3}</span>}
+                      {graphicTitleLine4 && <span className="text-white text-base sm:text-xl lg:text-[22px] font-bold leading-tight">{graphicTitleLine4}</span>}
                     </div>
                   )}
                 </div>
