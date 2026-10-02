@@ -365,13 +365,41 @@ export default function ServicesClient({
       {/* SECTION 2: WHY IT MATTERS (COMPOUND SYSTEM) */}
       {/* ========================================================================= */}
       {whyItMatters && (
-        <section id="section-whyItMatters" className="relative w-full bg-white text-zinc-900 py-20 lg:py-28 overflow-hidden">
+        <section id="section-whyItMatters" className="relative w-full bg-white text-zinc-900 py-14 sm:py-20 lg:py-28 overflow-hidden">
           <div className="site-container px-4 sm:px-6 lg:px-8">
             {/* Top Grid: Image + Copy */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center mb-16 lg:mb-20">
-              {/* Left Image */}
-              <div className="lg:col-span-6 flex justify-center">
-                <div className="relative w-full aspect-4/3 rounded-3xl md:rounded-4xl overflow-hidden bg-zinc-200 border border-zinc-200/80 shadow-xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-16 items-center mb-12 sm:mb-16 lg:mb-20">
+              
+              {/* Text Content (UP on mobile and tablet, RIGHT on desktop) */}
+              <div className="order-1 lg:order-2 lg:col-span-6 flex flex-col items-start space-y-4 sm:space-y-6 text-left">
+                {/* Badge */}
+                {whyItMatters?.badge && (
+                  <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs">
+                    <span className="text-primary text-sm font-bold">✦</span>
+                    <span className="text-xs font-bold text-zinc-900 tracking-wide">
+                      {whyItMatters.badge}
+                    </span>
+                  </div>
+                )}
+
+                {/* Title */}
+                {whyItMatters?.title && (
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-zinc-900 tracking-tight leading-tight">
+                    {whyItMatters.title}
+                  </h2>
+                )}
+
+                {/* Description */}
+                {whyItMatters?.description && (
+                  <p className="text-zinc-600 text-xs sm:text-sm md:text-base leading-relaxed font-normal">
+                    {whyItMatters.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Image (BELOW details on mobile and tablet, LEFT on desktop) */}
+              <div className="order-2 lg:order-1 lg:col-span-6 flex justify-center w-full">
+                <div className="relative w-full max-w-135 sm:max-w-150 lg:max-w-none aspect-4/3 rounded-2xl sm:rounded-3xl lg:rounded-4xl overflow-hidden bg-zinc-200 border border-zinc-200/80 shadow-xl">
                   <Image
                     src={
                       section2ImgError
@@ -386,60 +414,34 @@ export default function ServicesClient({
                 </div>
               </div>
 
-              {/* Right Text Content */}
-              <div className="lg:col-span-6 flex flex-col items-start space-y-6">
-                {/* Badge */}
-                {whyItMatters?.badge && (
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs">
-                    <span className="text-primary text-sm font-bold">✦</span>
-                    <span className="text-xs font-bold text-zinc-900 tracking-wide">
-                      {whyItMatters.badge}
-                    </span>
-                  </div>
-                )}
-
-                {/* Title */}
-                {whyItMatters?.title && (
-                  <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-bold text-zinc-900 tracking-tight leading-[1.18]">
-                    {whyItMatters.title}
-                  </h2>
-                )}
-
-                {/* Description */}
-                {whyItMatters?.description && (
-                  <p className="text-zinc-600 text-sm sm:text-base leading-relaxed font-normal">
-                    {whyItMatters.description}
-                  </p>
-                )}
-              </div>
             </div>
 
             {/* Bottom Grid: 4 Metric Cards with Hardcoded Icons */}
             {metrics.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {metrics.map((m: any, idx: number) => {
                   const IconComp = WHY_IT_MATTERS_ICONS[idx % WHY_IT_MATTERS_ICONS.length];
                   return (
                     <div
                       key={idx}
-                      className="bg-white rounded-3xl p-6 sm:p-7 border border-zinc-200/80 shadow-xl shadow-black/3 hover:shadow-2xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                      className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-zinc-200/80 shadow-md shadow-black/3 hover:shadow-xl hover:border-zinc-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                     >
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         <div className="flex items-center justify-between gap-4">
-                          <div className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
+                          <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 tracking-tight">
                             {m.stat}
                           </div>
 
-                          <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-black shrink-0 shadow-sm">
-                            <IconComp className="w-5 h-5 text-black stroke-[2.5]" />
+                          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary flex items-center justify-center text-black shrink-0 shadow-xs">
+                            <IconComp className="w-4 h-4 sm:w-5 sm:h-5 text-black stroke-[2.5]" />
                           </div>
                         </div>
 
                         <div>
-                          <h3 className="text-sm font-bold text-zinc-900 mb-1">
+                          <h3 className="text-xs sm:text-sm font-bold text-zinc-900 mb-1">
                             {m.title}
                           </h3>
-                          <p className="text-xs text-zinc-500 font-normal leading-relaxed">
+                          <p className="text-[11px] sm:text-xs text-zinc-500 font-normal leading-relaxed">
                             {m.desc}
                           </p>
                         </div>
@@ -580,14 +582,14 @@ export default function ServicesClient({
       {/* SECTION 4: STRUCTURED PATH & OUTCOMES */}
       {/* ========================================================================= */}
       {processSection && (
-        <section id="section-processSection" className="relative w-full bg-white text-zinc-900 py-24 lg:py-36 overflow-hidden z-10">
+        <section id="section-processSection" className="relative w-full bg-white text-zinc-900 py-14 sm:py-20 lg:py-28 overflow-hidden z-10">
           <div className="absolute top-0 left-0 w-125 h-125 md:w-175 md:h-175 bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 -translate-y-1/3" />
           <div className="absolute bottom-0 right-0 w-125 h-125 md:w-175 md:h-175 bg-[#FFE4B5]/60 rounded-full blur-[120px] pointer-events-none translate-x-1/3 translate-y-1/3" />
 
           <div className="relative z-10 site-container px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
+            <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-10 sm:mb-14 lg:mb-16">
               {processSection?.badge && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs mb-6">
+                <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full border border-zinc-300 bg-white shadow-xs mb-4 sm:mb-6">
                   <span className="text-primary text-sm font-bold">✦</span>
                   <span className="text-xs font-bold text-zinc-900 tracking-wide">
                     {processSection.badge}
@@ -596,13 +598,13 @@ export default function ServicesClient({
               )}
 
               {processSection?.title && (
-                <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-zinc-900 tracking-tight mb-4 leading-tight">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-zinc-900 tracking-tight mb-3 sm:mb-4 leading-tight">
                   {processSection.title}
                 </h2>
               )}
 
               {processSection?.description && (
-                <p className="text-zinc-500 text-sm sm:text-base font-normal">
+                <p className="text-zinc-500 text-xs sm:text-sm md:text-base font-normal max-w-2xl mx-auto leading-relaxed">
                   {processSection.description}
                 </p>
               )}
@@ -610,20 +612,20 @@ export default function ServicesClient({
 
             {/* 6 Process Cards Grid */}
             {processSteps.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-14 lg:gap-16 mb-32">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mb-14 sm:mb-20 lg:mb-24">
                 {processSteps.map((step: any, idx: number) => (
-                  <div key={idx} className="relative pt-7 pl-7 sm:pt-9 sm:pl-9 group">
-                    <div className="absolute top-[-20] left-[-20] w-28 h-28 sm:w-32 sm:h-32 rounded-[28px] bg-primary p-3.5 sm:p-4 z-0 flex items-start justify-start shadow-sm">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-black font-sans tracking-tight leading-none pt-0.5 pl-0.5">
+                  <div key={idx} className="relative group">
+                    <div className="absolute top-0 left-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-primary p-2.5 sm:p-3.5 z-0 flex items-start justify-start shadow-xs">
+                      <span className="text-xl sm:text-2xl font-black text-black font-sans tracking-tight leading-none">
                         {step.num}
                       </span>
                     </div>
 
-                    <div className="relative z-10 bg-[#FFFDF6]/80 backdrop-blur-md border border-white/90 rounded-[28px] p-6 sm:p-8 text-center shadow-xl shadow-black/4 hover:shadow-2xl hover:bg-[#FFFDF6]/90 transition-all duration-300 min-h-42.5 flex flex-col items-center justify-center">
-                      <h3 className="text-base sm:text-lg font-bold text-zinc-900 mb-2 leading-snug">
+                    <div className="relative z-10 w-[calc(100%-2.5rem)] sm:w-[calc(100%-3rem)] ml-auto mt-4 sm:mt-5 bg-[#FFFDF6]/95 backdrop-blur-md border border-amber-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 text-center shadow-md shadow-black/3 hover:shadow-xl hover:bg-[#FFFDF6] transition-all duration-300 min-h-32 sm:min-h-36 flex flex-col items-center justify-center">
+                      <h3 className="text-sm sm:text-base lg:text-lg font-bold text-zinc-900 mb-1.5 sm:mb-2 leading-snug">
                         {step.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-zinc-600 font-normal leading-relaxed max-w-65 mx-auto">
+                      <p className="text-xs sm:text-sm text-zinc-600 font-normal leading-relaxed max-w-xs mx-auto">
                         {step.desc}
                       </p>
                     </div>
@@ -634,9 +636,9 @@ export default function ServicesClient({
 
             {(processSection?.outcomesTitle || outcomes.length > 0) && (
               <>
-                <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
+                <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-10 sm:mb-14 lg:mb-16">
                   {processSection?.outcomesBadge && (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-300 bg-[#FFFDF0] shadow-xs mb-6">
+                    <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full border border-amber-300 bg-[#FFFDF0] shadow-xs mb-4 sm:mb-6">
                       <span className="text-xs font-bold text-[#D97706] uppercase tracking-wider">
                         {processSection.outcomesBadge}
                       </span>
@@ -644,33 +646,33 @@ export default function ServicesClient({
                   )}
 
                   {processSection?.outcomesTitle && (
-                    <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-zinc-900 tracking-tight mb-4 leading-tight">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-zinc-900 tracking-tight mb-3 sm:mb-4 leading-tight">
                       {processSection.outcomesTitle}
                     </h2>
                   )}
 
                   {processSection?.outcomesDescription && (
-                    <p className="text-zinc-500 text-xs sm:text-sm max-w-xl font-normal leading-relaxed">
+                    <p className="text-zinc-500 text-xs sm:text-sm md:text-base max-w-xl font-normal leading-relaxed">
                       {processSection.outcomesDescription}
                     </p>
                   )}
                 </div>
 
                 {outcomes.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     {outcomes.map((item: any, idx: number) => {
                       const IconComp = OUTCOMES_ICONS[idx % OUTCOMES_ICONS.length];
                       return (
                         <div
                           key={idx}
-                          className="bg-white border border-zinc-200/70 rounded-3xl p-6 shadow-md shadow-black/3 hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
+                          className="bg-white border border-zinc-200/70 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-md shadow-black/3 hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
                         >
                           <div className="space-y-3">
-                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black shadow-sm">
+                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black shadow-xs">
                               <IconComp className="w-4 h-4 text-black stroke-[2.5]" />
                             </div>
 
-                            <div className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight pt-1">
+                            <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 tracking-tight pt-1">
                               {item.stat}
                             </div>
 
@@ -678,7 +680,7 @@ export default function ServicesClient({
                               <h3 className="text-xs sm:text-sm font-bold text-zinc-900 mb-1">
                                 {item.title}
                               </h3>
-                              <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">
+                              <p className="text-[11px] sm:text-xs text-zinc-500 font-medium leading-relaxed">
                                 {item.desc}
                               </p>
                             </div>
