@@ -23,8 +23,18 @@ export function PreviewInspector() {
 
     const isAllowedOrigin = (origin: string, expectedOrigin: string) => {
       try {
-        const expected = new URL(expectedOrigin);
         const incoming = new URL(origin);
+        if (
+          incoming.hostname.endsWith(".vercel.app") ||
+          incoming.hostname === "localhost" ||
+          incoming.hostname === "127.0.0.1" ||
+          incoming.hostname.endsWith(".ysinnovations.com") ||
+          incoming.hostname === "ysinnovations.com"
+        ) {
+          return true;
+        }
+
+        const expected = new URL(expectedOrigin);
         return expected.origin === incoming.origin;
       } catch {
         return origin === expectedOrigin;
