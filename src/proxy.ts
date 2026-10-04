@@ -56,6 +56,17 @@ export async function proxy(request: NextRequest) {
     normalizedPath = normalizedPath.slice(0, -1);
   }
 
+  // Intercept authorized preview requests and rewrite internally to /preview
+  const isPreview = targetUrl.searchParams.get("preview") === "true";
+  const previewSecret = targetUrl.searchParams.get("secret");
+  if (isPreview && previewSecret && normalizedPath !== "/preview") {
+    const previewRewriteUrl = request.nextUrl.clone();
+    previewRewriteUrl.pathname = "/preview";
+    previewRewriteUrl.searchParams.set("path", normalizedPath);
+    previewRewriteUrl.searchParams.set("secret", previewSecret);
+    return NextResponse.rewrite(previewRewriteUrl);
+  }
+
   const originNoSlash = origin.endsWith("/") ? origin.slice(0, -1) : origin;
   const originWithSlash = `${originNoSlash}/`;
   const fullUrl = `${originNoSlash}${normalizedPath}`;

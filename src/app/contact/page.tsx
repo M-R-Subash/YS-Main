@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { constructMetadata } from "@/lib/seo";
-import { isPreviewAuthorized, getEffectiveContent, type SearchParamsPromise } from "@/lib/preview";
 import ContactClient from "./ContactClient";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
@@ -25,27 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function ContactPage({
-  searchParams,
-}: {
-  searchParams?: SearchParamsPromise;
-}) {
-  const isPreview = await isPreviewAuthorized(searchParams);
+export default async function ContactPage() {
   const page = await getContactPage();
 
-  if (!page || (!page.content && !page.draftContent)) {
+  if (!page || !page.content) {
     notFound();
   }
 
-  if (page.isTrashed) {
+  if (page.isTrashed || page.status === "draft") {
     notFound();
   }
 
-  if (page.status === "draft" && !isPreview) {
-    notFound();
-  }
-
-  const content = getEffectiveContent(page, isPreview);
-
-  return <ContactClient content={content} />;
+  return <ContactClient content={page.content} />;
 }

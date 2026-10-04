@@ -7,30 +7,24 @@ import BlogSingleClient from "./BlogSingleClient";
 import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
-import { isPreviewAuthorized, type SearchParamsPromise } from "@/lib/preview";
 import { config } from "@/lib/config";
 
 export const revalidate = 86400; // 24 hours ISR (revalidated on-demand via CMS hook)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams?: SearchParamsPromise;
 }
 
-const getBlog = cache(async (slug: string, isPreview: boolean) => {
+const getBlog = cache(async (slug: string) => {
   const now = new Date();
   return prisma.blog.findFirst({
     where: {
       slug,
       isTrashed: false,
-      ...(isPreview
-        ? {}
-        : {
-            OR: [
-              { status: "published" },
-              { status: "scheduled", scheduledAt: { lte: now } },
-            ],
-          }),
+      OR: [
+        { status: "published" },
+        { status: "scheduled", scheduledAt: { lte: now } },
+      ],
     },
     include: {
       author: {
@@ -82,10 +76,9 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const isPreview = await isPreviewAuthorized(searchParams);
-  const blog = await getBlog(slug, isPreview);
+  const blog = await getBlog(slug);
 
   if (!blog) return constructMetadata({ title: "Blog Not Found" });
 
@@ -97,43 +90,14 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   });
 }
 
-export default async function BlogSinglePage({ params, searchParams }: PageProps) {
+export default async function BlogSinglePage({ params }: PageProps) {
   const { slug } = await params;
-  const isPreview = await isPreviewAuthorized(searchParams);
-  const blog = await getBlog(slug, isPreview);
+  const blog = await getBlog(slug);
 
   if (!blog) notFound();
 
-  // Blog-specific FAQs (stored in blog.content.faqs or blog.faqs or draftContent)
-  const effectiveData = isPreview && (blog as any).draftContent
-    ? (typeof (blog as any).draftContent === "string" ? JSON.parse((blog as any).draftContent) : (blog as any).draftContent)
-    : blog;
-
-  // Fully merge staged draft content into effectiveBlog for live preview
-  const effectiveBlog = isPreview && (blog as any).draftContent
-    ? {
-        ...blog,
-        title: effectiveData.title ?? blog.title,
-        content: effectiveData.content ?? blog.content,
-        featuredImage: effectiveData.featuredImage ?? blog.featuredImage,
-        excerpt: effectiveData.excerpt ?? blog.excerpt,
-        tags: effectiveData.tags ?? blog.tags,
-        categories: effectiveData.categories ?? blog.categories,
-        readingTime: effectiveData.readingTime ?? blog.readingTime,
-        seo: effectiveData.seo || (effectiveData.metaTitle ? {
-          metaTitle: effectiveData.metaTitle,
-          metaDesc: effectiveData.metaDesc,
-          focusKeyword: effectiveData.focusKeyword,
-          ogImage: effectiveData.ogImage,
-          ogTitle: effectiveData.ogTitle,
-          ogDesc: effectiveData.ogDesc,
-          canonicalUrl: effectiveData.canonicalUrl,
-          noIndex: effectiveData.noIndex,
-        } : blog.seo),
-      }
-    : blog;
-
-  const rawBlogFaqs = (effectiveData?.content as any)?.faqs || (effectiveData as any)?.faqs || (blog?.content as any)?.faqs;
+  const effectiveBlog = blog;
+  const rawBlogFaqs = (blog?.content as any)?.faqs;
   const blogFaqList = Array.isArray(rawBlogFaqs)
     ? rawBlogFaqs.filter((item: any) => item && (item.question?.trim() || item.answer?.trim()))
     : [];
@@ -296,7 +260,7 @@ export default async function BlogSinglePage({ params, searchParams }: PageProps
         faqs={faqs} 
         faqsGraphic={faqsGraphic}
         relatedBlogs={relatedBlogs}
-        isPreview={isPreview}
+        isPreview={false}
       />
     </>
   );
