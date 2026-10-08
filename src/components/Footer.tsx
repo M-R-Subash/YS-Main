@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, Send, Globe } from "lucide-react";
+import { ArrowUpRight, Send, Globe, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export interface FooterLink {
@@ -107,6 +107,49 @@ export default function Footer({ data }: { data?: FooterData | null }) {
   const pathname = usePathname();
   const hideCTA = pathname === "/careers";
 
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState("");
+  const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false);
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "success" | "error">("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim() || isNewsletterSubmitting) return;
+
+    setIsNewsletterSubmitting(true);
+    setNewsletterStatus("idle");
+    setNewsletterMessage("");
+
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: newsletterEmail.trim(),
+          source: "footer",
+          honeypot: newsletterHoneypot,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (res.ok && json.success) {
+        setNewsletterStatus("success");
+        setNewsletterMessage(json.message || "Thank you for subscribing to YS Innovations!");
+        setNewsletterEmail("");
+      } else {
+        setNewsletterStatus("error");
+        setNewsletterMessage(json.error || "Failed to subscribe. Please try again.");
+      }
+    } catch {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Network error occurred. Please try again.");
+    } finally {
+      setIsNewsletterSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === "FOOTER_UPDATE" && e.data.data) {
@@ -207,16 +250,58 @@ export default function Footer({ data }: { data?: FooterData | null }) {
                 {displayData.newsletter?.title} <br />
                 <span className="text-[#FFA918]">{displayData.newsletter?.highlight}</span>
               </h3>
-              <form className="relative w-full max-w-[360px]" onSubmit={(e) => e.preventDefault()}>
-                <input 
-                  type="email" 
-                  placeholder="Enter your email address" 
-                  className="w-full bg-[#111] border border-white/10 text-white placeholder-zinc-500 rounded-[8px] py-3.5 pl-4 pr-14 outline-none focus:border-[#FFA918] transition-colors text-sm shadow-inner"
-                  required
-                />
-                <button type="submit" className="absolute right-2 top-2 bottom-2 w-10 bg-[#FFA918] rounded-[6px] flex items-center justify-center hover:bg-[#e59815] transition-colors">
-                  <Send className="w-[18px] h-[18px] text-black" />
-                </button>
+              <form className="relative w-full max-w-[360px]" onSubmit={handleNewsletterSubmit}>
+                {/* Honeypot trap */}
+                <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+                  <input
+                    type="text"
+                    name="hp_footer_newsletter"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={newsletterHoneypot}
+                    onChange={(e) => setNewsletterHoneypot(e.target.value)}
+                  />
+                </div>
+
+                <div className="relative">
+                  <input 
+                    type="email" 
+                    placeholder="Enter your email address" 
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    disabled={isNewsletterSubmitting}
+                    className="w-full bg-[#111] border border-white/10 text-white placeholder-zinc-500 rounded-[8px] py-3.5 pl-4 pr-14 outline-none focus:border-[#FFA918] transition-colors text-sm shadow-inner disabled:opacity-60"
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={isNewsletterSubmitting}
+                    className="absolute right-2 top-2 bottom-2 w-10 bg-[#FFA918] rounded-[6px] flex items-center justify-center hover:bg-[#e59815] transition-colors cursor-pointer disabled:opacity-60"
+                    title="Subscribe"
+                  >
+                    {isNewsletterSubmitting ? (
+                      <Loader2 className="w-[18px] h-[18px] text-black animate-spin" />
+                    ) : newsletterStatus === "success" ? (
+                      <CheckCircle2 className="w-[18px] h-[18px] text-black" />
+                    ) : (
+                      <Send className="w-[18px] h-[18px] text-black" />
+                    )}
+                  </button>
+                </div>
+
+                {newsletterStatus === "success" && (
+                  <p className="mt-2.5 text-xs text-emerald-400 font-medium flex items-center gap-1.5 animate-in fade-in duration-200">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>{newsletterMessage}</span>
+                  </p>
+                )}
+
+                {newsletterStatus === "error" && (
+                  <p className="mt-2.5 text-xs text-rose-400 font-medium flex items-center gap-1.5 animate-in fade-in duration-200">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{newsletterMessage}</span>
+                  </p>
+                )}
               </form>
             </div>
 
