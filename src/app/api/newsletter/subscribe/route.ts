@@ -45,28 +45,59 @@ export async function POST(req: Request) {
       });
     }
 
-    // Direct database persistence (upsert: reactivate if previously unsubscribed)
-    const subscriber = await prisma.subscriber.upsert({
+    // Check if subscriber already exists to distinguish new vs returning vs already active
+    const existing = await prisma.subscriber.findUnique({
       where: { email },
-      update: {
-        status: "active",
-        source,
-      },
-      create: {
-        email,
-        source,
-        status: "active",
-      },
-      select: {
-        id: true,
-        email: true,
-        status: true,
-      },
     });
+
+    let subscriber;
+    let message = "Thank you for subscribing to our newsletter!";
+
+    if (!existing) {
+      // 1. Brand new subscriber
+      subscriber = await prisma.subscriber.create({
+        data: {
+          email,
+          source,
+          status: "active",
+          resubscribeCount: 0,
+        },
+        select: {
+          id: true,
+          email: true,
+          status: true,
+        },
+      });
+    } else if (existing.status === "unsubscribed") {
+      // 2. Returning subscriber: previously unsubscribed, now opting back in!
+      subscriber = await prisma.subscriber.update({
+        where: { id: existing.id },
+        data: {
+          status: "active",
+          source: source || existing.source,
+          resubscribedAt: new Date(),
+          resubscribeCount: { increment: 1 },
+        },
+        select: {
+          id: true,
+          email: true,
+          status: true,
+        },
+      });
+      message = "Welcome back! You have successfully re-subscribed to our newsletter.";
+    } else {
+      // 3. Already active subscriber: do NOT double count return status
+      subscriber = {
+        id: existing.id,
+        email: existing.email,
+        status: existing.status,
+      };
+      message = "You are already subscribed to our newsletter!";
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Thank you for subscribing to our newsletter!",
+      message,
       subscriber: {
         id: subscriber.id,
         email: subscriber.email,

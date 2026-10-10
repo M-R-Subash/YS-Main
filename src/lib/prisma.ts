@@ -17,7 +17,11 @@ function createPrismaClient(): PrismaClient {
 
 let client = globalForPrisma.prisma;
 
-if (!client || !(client as any)._runtimeDataModel?.models?.Blog?.fields?.some((f: any) => f.name === "scheduledAt")) {
+if (
+  !client ||
+  !(client as any)._runtimeDataModel?.models?.Blog?.fields?.some((f: any) => f.name === "scheduledAt") ||
+  !(client as any)._runtimeDataModel?.models?.Subscriber?.fields?.some((f: any) => f.name === "resubscribeCount")
+) {
   client = createPrismaClient();
 }
 

@@ -275,10 +275,14 @@ model Subscriber {
   unsubscribeToken String           @unique @default(cuid())
   source           String?          @default("website")
   
+  resubscribedAt   DateTime?
+  resubscribeCount Int              @default(0)
+
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
   @@index([status, email])
+  @@index([resubscribeCount])
 }
 
 model NewsletterCampaign {

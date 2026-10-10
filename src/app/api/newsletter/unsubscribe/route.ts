@@ -93,11 +93,15 @@ export async function GET(req: Request) {
     }
 
     if (isResubscribe) {
-      // Re-subscribe flow
+      // Re-subscribe flow (1-click undo)
       if (subscriber.status !== "active") {
         await prisma.subscriber.update({
           where: { id: subscriber.id },
-          data: { status: "active" },
+          data: {
+            status: "active",
+            resubscribedAt: new Date(),
+            resubscribeCount: { increment: 1 },
+          },
         });
       }
 
