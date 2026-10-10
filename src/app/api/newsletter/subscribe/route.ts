@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { clientConfig } from "@/lib/config/client";
 
 const subscribeSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address").toLowerCase(),
@@ -46,41 +45,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 1. Try to sync to admin.ys API if available
-    try {
-      const adminUrl = clientConfig.app.apiUrl.replace(/\/$/, "");
-      const res = await fetch(`${adminUrl}/api/newsletter/subscribe`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Forwarded-For": clientIp,
-        },
-        body: JSON.stringify({ email, source }),
-        signal: AbortSignal.timeout(4000),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        // Also keep local database in sync
-        try {
-          await prisma.subscriber.upsert({
-            where: { email },
-            update: { status: "active", source },
-            create: { email, source, status: "active" },
-          });
-        } catch {
-          // Non-blocking
-        }
-        return NextResponse.json({
-          success: true,
-          message: data.message || "Thank you for subscribing to our newsletter!",
-        });
-      }
-    } catch {
-      // Admin API offline or unreachable; fall back to local database
-    }
-
-    // 2. Direct local database persistence
+    // Direct database persistence (upsert: reactivate if previously unsubscribed)
     const subscriber = await prisma.subscriber.upsert({
       where: { email },
       update: {

@@ -1,22 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { clientConfig } from "@/lib/config/client";
-
-/**
- * Helper to sync unsubscribe action back to admin.ys if available
- */
-async function syncToAdmin(token: string, action: "unsubscribe" | "resubscribe" = "unsubscribe") {
-  try {
-    const adminUrl = clientConfig.app.apiUrl.replace(/\/$/, "");
-    const endpoint = action === "resubscribe" ? "resubscribe" : "unsubscribe";
-    await fetch(`${adminUrl}/api/newsletter/${endpoint}?token=${encodeURIComponent(token)}`, {
-      method: "POST",
-      signal: AbortSignal.timeout(3000),
-    });
-  } catch {
-    // Non-blocking fallback
-  }
-}
 
 /**
  * RFC 8058 One-Click Unsubscribe via HTTP POST (used by email clients like Gmail, Apple Mail)
@@ -40,10 +23,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // 1. Sync to admin
-    await syncToAdmin(token, "unsubscribe");
-
-    // 2. Direct database update
     const subscriber = await prisma.subscriber.findUnique({
       where: { unsubscribeToken: token },
     });
@@ -120,7 +99,6 @@ export async function GET(req: Request) {
           where: { id: subscriber.id },
           data: { status: "active" },
         });
-        await syncToAdmin(token, "resubscribe");
       }
 
       return new Response(
@@ -142,7 +120,6 @@ export async function GET(req: Request) {
         where: { id: subscriber.id },
         data: { status: "unsubscribed" },
       });
-      await syncToAdmin(token, "unsubscribe");
     }
 
     return new Response(
