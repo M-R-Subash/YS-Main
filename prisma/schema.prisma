@@ -118,7 +118,8 @@ model Blog {
   revisions     BlogRevision[]
   categoryItems Category[]      @relation("BlogCategories")
   tagItems      Tag[]           @relation("BlogTags")
-
+  
+  notifyNewsletter Boolean              @default(false)
   newsletterSent   Boolean              @default(false)
   newsletterSentAt DateTime?
   campaigns        NewsletterCampaign[]
@@ -148,6 +149,7 @@ model Tag {
   id          String   @id @default(cuid())
   name        String   @unique
   slug        String   @unique
+  description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   blogs       Blog[]   @relation("BlogTags")
@@ -226,30 +228,22 @@ model BlogRevision {
   id             String    @id @default(cuid())
   blogId         String
   blog           Blog      @relation(fields: [blogId], references: [id], onDelete: Cascade)
-
-  // Sequential version identifier per blog (1, 2, 3...)
   versionNumber  Int
-
-  // Universal JSON snapshot capturing all blog attributes at publish time
   snapshotData   Json
-
-  // Triggering action: "published" | "updated" | "scheduled-publish" | "restored"
   action         String
-
-  // Metadata summary for rapid list rendering without parsing full TipTap tree
   wordCount      Int       @default(0)
   readingTime    Int       @default(1)
-
-  // Author association (Set null if user is deleted)
   savedById      String?
   savedBy        User?     @relation("RevisionAuthor", fields: [savedById], references: [id], onDelete: SetNull)
-
   createdAt      DateTime  @default(now())
 
   @@unique([blogId, versionNumber])
   @@index([blogId, createdAt(sort: Desc)])
 }
 
+// ==============================================================================
+// NEWSLETTER & SUBSCRIBER MANAGEMENT
+// ==============================================================================
 
 enum SubscriberStatus {
   active
@@ -258,6 +252,7 @@ enum SubscriberStatus {
 
 enum CampaignStatus {
   draft
+  scheduled
   processing
   completed
   failed
@@ -291,6 +286,7 @@ model NewsletterCampaign {
   bodyHtml        String         @db.Text
   type            CampaignType   @default(CUSTOM_BLAST)
   status          CampaignStatus @default(processing)
+  scheduledAt     DateTime?
   
   blogId          String?
   blog            Blog?          @relation(fields: [blogId], references: [id], onDelete: SetNull)
@@ -304,4 +300,5 @@ model NewsletterCampaign {
   completedAt     DateTime?
 
   @@index([status, createdAt])
+  @@index([status, scheduledAt])
 }
