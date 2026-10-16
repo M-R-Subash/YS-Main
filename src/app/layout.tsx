@@ -7,6 +7,7 @@ import { PreviewIsolator } from "@/components/PreviewIsolator";
 import { PreviewInspector } from "@/components/PreviewInspector";
 import PageTransitionLoader from "@/components/PageTransitionLoader";
 import { Suspense } from "react";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import prisma from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { config } from "@/lib/config";
@@ -220,6 +221,7 @@ export default async function RootLayout({
       <body className="bg-background text-white font-sans">
         <PageTransitionLoader />
         <Suspense fallback={null}>
+          <AnalyticsTracker />
           <PreviewIsolator />
           <PreviewInspector />
         </Suspense>
