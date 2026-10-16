@@ -73,9 +73,10 @@ export async function POST(req: Request) {
           // Check if visitor has been seen today
           const existingSession = await prisma.analyticsVisitorSession.findUnique({
             where: { visitorHash },
-            select: { visitorHash: true },
+            select: { visitorHash: true, visitedPaths: true },
           });
           const isNewVisitorToday = !existingSession;
+          const isNewVisitorToPage = !existingSession || !existingSession.visitedPaths.includes(path);
 
           // Upsert visitor session
           await prisma.analyticsVisitorSession.upsert({
@@ -83,11 +84,17 @@ export async function POST(req: Request) {
             create: {
               visitorHash,
               lastPath: path,
+              visitedPaths: [path],
               isEngaged: false,
               lastSeenAt: new Date(),
             },
             update: {
               lastPath: path,
+              ...(isNewVisitorToPage && {
+                visitedPaths: {
+                  push: path,
+                },
+              }),
               lastSeenAt: new Date(),
             },
           });
@@ -137,12 +144,12 @@ export async function POST(req: Request) {
               resourceType: resolvedType,
               resourceId: resourceId || undefined,
               views: 1,
-              uniqueVisitors: isNewVisitorToday ? 1 : 0,
+              uniqueVisitors: isNewVisitorToPage ? 1 : 0,
             },
             update: {
               views: { increment: 1 },
               ...(title && { title }),
-              ...(isNewVisitorToday && { uniqueVisitors: { increment: 1 } }),
+              ...(isNewVisitorToPage && { uniqueVisitors: { increment: 1 } }),
               ...(resolvedType && { resourceType: resolvedType }),
               ...(resourceId && { resourceId }),
             },
@@ -217,38 +224,50 @@ export async function POST(req: Request) {
             }
           }
         } else if (type === "engage") {
-          // Increment engagement if user wasn't engaged yet
+          // Increment engagement if user wasn't engaged yet for this page
           const session = await prisma.analyticsVisitorSession.findUnique({
             where: { visitorHash },
-            select: { isEngaged: true },
+            select: { isEngaged: true, engagedPaths: true },
           });
 
-          if (!session || !session.isEngaged) {
+          const isFirstSiteEngagement = !session || !session.isEngaged;
+          const isFirstPageEngagement = !session || !session.engagedPaths.includes(path);
+
+          if (isFirstPageEngagement) {
             await prisma.analyticsVisitorSession.upsert({
               where: { visitorHash },
               create: {
                 visitorHash,
                 lastPath: path,
+                visitedPaths: [path],
+                engagedPaths: [path],
                 isEngaged: true,
                 lastSeenAt: new Date(),
               },
               update: {
                 isEngaged: true,
+                engagedPaths: {
+                  push: path,
+                },
                 lastSeenAt: new Date(),
               },
             });
 
-            await prisma.analyticsDaily.upsert({
-              where: { date: todayUtc },
-              create: {
-                date: todayUtc,
-                engagedVisits: 1,
-              },
-              update: {
-                engagedVisits: { increment: 1 },
-              },
-            });
+            // Increment site-wide engagement if this visitor hadn't engaged anywhere today yet
+            if (isFirstSiteEngagement) {
+              await prisma.analyticsDaily.upsert({
+                where: { date: todayUtc },
+                create: {
+                  date: todayUtc,
+                  engagedVisits: 1,
+                },
+                update: {
+                  engagedVisits: { increment: 1 },
+                },
+              });
+            }
 
+            // Always increment per-page engaged visits if new to this page
             await prisma.analyticsPage.upsert({
               where: {
                 date_path: { date: todayUtc, path },
