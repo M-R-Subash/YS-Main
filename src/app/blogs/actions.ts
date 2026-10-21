@@ -34,7 +34,7 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
     };
   }
 
-  const [blogs, total] = await Promise.all([
+  const [rawBlogs, total] = await Promise.all([
     prisma.blog.findMany({  
       where,
       skip,
@@ -70,11 +70,22 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
     prisma.blog.count({ where }),
   ]);
 
+  // Fix: Ensure publishedAt is consistently serialized to an ISO string
+  // Prevents React Server Components / Client boundary hydration crashes between Date objects and cached strings
+  const blogs = rawBlogs.map((blog) => ({
+    ...blog,
+    publishedAt: blog.publishedAt
+      ? typeof blog.publishedAt === "string"
+        ? blog.publishedAt
+        : blog.publishedAt.toISOString()
+      : null,
+  }));
+
   const result = { blogs, total, hasMore: skip + blogs.length < total };
 
   if (redis) {
-    // Cache for 5 minutes (300 seconds)
-    redis.set(cacheKey, result, { ex: 300 }).catch((err) => {
+    // 60-second TTL ensures live updates appear quickly while still shielding PostgreSQL from traffic spikes
+    redis.set(cacheKey, result, { ex: 60 }).catch((err) => {
       console.warn("[Blogs:Redis] Failed to write cache:", err);
     });
   }
@@ -99,32 +110,28 @@ export async function getCategories(): Promise<string[]> {
 
   let categories: string[] = [];
   try {
-    const results = await prisma.$queryRaw<{ category: string }[]>`
-      SELECT DISTINCT unnest(categories) AS category
-      FROM "Blog"
-      WHERE status = 'published' AND "isTrashed" = false
-      ORDER BY category ASC;
-    `;
-    categories = results.map((r) => r.category).filter(Boolean);
-  } catch {
+    // Pure Prisma extraction: resilient, type-safe, and database-agnostic
     const blogs = await prisma.blog.findMany({
       where: { status: "published", isTrashed: false },
       select: { categories: true },
-      take: 100,
     });
 
     const categorySet = new Set<string>();
     blogs.forEach((blog) => {
       if (Array.isArray(blog.categories)) {
-        blog.categories.forEach((cat) => categorySet.add(cat));
+        blog.categories.forEach((cat) => {
+          if (cat) categorySet.add(cat);
+        });
       }
     });
 
     categories = Array.from(categorySet).sort();
+  } catch (err) {
+    console.error("[Categories:Prisma] Failed to fetch categories:", err);
   }
 
   if (redis && categories.length > 0) {
-    // Cache categories for 15 minutes (900 seconds)
+    // Cache categories for 15 minutes
     redis.set(cacheKey, categories, { ex: 900 }).catch((err) => {
       console.warn("[Categories:Redis] Failed to write cache:", err);
     });

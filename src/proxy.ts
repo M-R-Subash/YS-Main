@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import prisma from "@/lib/prisma";
 import { getRedisClient } from "@/lib/redis";
 
 interface CachedRule {
@@ -7,71 +6,8 @@ interface CachedRule {
   statusCode: number;
 }
 
-// In-memory cache for active redirection rules (TTL: 60 seconds)
-let redirectsCache: Map<string, CachedRule> | null = null;
-let lastCacheFetchTime = 0;
-const CACHE_TTL_MS = 60 * 1000;
-
-async function getActiveRedirectsMap(): Promise<Map<string, CachedRule>> {
-  const now = Date.now();
-  if (redirectsCache && now - lastCacheFetchTime < CACHE_TTL_MS) {
-    return redirectsCache;
-  }
-
-  const redis = getRedisClient();
-  const REDIS_CACHE_KEY = "cache:main:redirects";
-
-  if (redis) {
-    try {
-      const cached = await redis.get<Record<string, CachedRule>>(REDIS_CACHE_KEY);
-      if (cached && typeof cached === "object") {
-        const map = new Map<string, CachedRule>(Object.entries(cached));
-        redirectsCache = map;
-        lastCacheFetchTime = now;
-        return map;
-      }
-    } catch (err) {
-      console.warn("[Redirects:Redis] Failed to read redirects cache:", err);
-    }
-  }
-
-  try {
-    const rules = await prisma.redirection.findMany({
-      where: { status: "active" },
-      select: {
-        sourceUrl: true,
-        destinationUrl: true,
-        statusCode: true,
-      },
-    });
-
-    const newMap = new Map<string, CachedRule>();
-    const serializableRecord: Record<string, CachedRule> = {};
-
-    for (const rule of rules) {
-      const entry = {
-        destinationUrl: rule.destinationUrl,
-        statusCode: rule.statusCode,
-      };
-      newMap.set(rule.sourceUrl, entry);
-      serializableRecord[rule.sourceUrl] = entry;
-    }
-
-    redirectsCache = newMap;
-    lastCacheFetchTime = now;
-
-    if (redis) {
-      redis.set(REDIS_CACHE_KEY, serializableRecord, { ex: 60 }).catch((err) => {
-        console.warn("[Redirects:Redis] Failed to write cache:", err);
-      });
-    }
-
-    return newMap;
-  } catch (err) {
-    console.error("Failed to load redirect cache:", err);
-    return redirectsCache || new Map();
-  }
-}
+// Memory cache (L1) - Persists across warm Edge functions for instant lookup
+const localRedirectCache = new Map<string, CachedRule>();
 
 export async function proxy(request: NextRequest) {
   const targetUrl = new URL(request.url);
@@ -85,7 +21,7 @@ export async function proxy(request: NextRequest) {
     normalizedPath = normalizedPath.slice(0, -1);
   }
 
-  // Intercept authorized preview requests and rewrite internally to /preview
+  // 2. Intercept authorized preview requests and rewrite internally
   const isPreview = targetUrl.searchParams.get("preview") === "true";
   const previewSecret = targetUrl.searchParams.get("secret");
   if (isPreview && previewSecret && normalizedPath !== "/preview") {
@@ -116,21 +52,50 @@ export async function proxy(request: NextRequest) {
   const validCandidates = Array.from(candidatesSet).filter(Boolean);
 
   try {
-    // 2. Query active redirect rule from cached redirects map
-    const activeRedirects = await getActiveRedirectsMap();
     let redirectRule: CachedRule | undefined;
+
+    // 3. Fast-path: Check Local Edge Memory (L1)
     for (const candidate of validCandidates) {
-      if (activeRedirects.has(candidate)) {
-        redirectRule = activeRedirects.get(candidate);
+      if (localRedirectCache.has(candidate)) {
+        redirectRule = localRedirectCache.get(candidate);
         break;
       }
     }
 
+    // 4. Fallback: Check Upstash Redis Hash (L2) - 100% Edge-Compatible (No Prisma)
+    if (!redirectRule) {
+      const redis = getRedisClient();
+      if (redis) {
+        const redisResults = await redis.hmget<Record<string, string | CachedRule>>("main:redirects", ...validCandidates);
+        if (redisResults && typeof redisResults === "object") {
+          for (const candidate of validCandidates) {
+            const rawVal = redisResults[candidate];
+            if (rawVal) {
+              if (typeof rawVal === "object" && (rawVal as CachedRule).destinationUrl) {
+                redirectRule = rawVal as CachedRule;
+              } else if (typeof rawVal === "string") {
+                try {
+                  redirectRule = JSON.parse(rawVal);
+                } catch {
+                  redirectRule = { destinationUrl: rawVal, statusCode: 301 };
+                }
+              }
+              if (redirectRule) {
+                localRedirectCache.set(candidate, redirectRule);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 5. Execute Redirect if matching rule found
     if (redirectRule) {
       const destination = redirectRule.destinationUrl.trim();
       const status = redirectRule.statusCode === 302 ? 302 : 301;
 
-      // Self-loop protection: if destination is same as current requested path/URL
+      // Self-loop protection
       if (
         destination === normalizedPath ||
         destination === href ||
@@ -144,13 +109,12 @@ export async function proxy(request: NextRequest) {
       if (destination.startsWith("http://") || destination.startsWith("https://")) {
         return NextResponse.redirect(destination, status);
       } else {
-        const targetUrl = new URL(destination, request.url);
-        return NextResponse.redirect(targetUrl, status);
+        const targetObj = new URL(destination, request.url);
+        return NextResponse.redirect(targetObj, status);
       }
     }
   } catch (error) {
-    // Log error and fall through to standard page resolution
-    console.error("Middleware redirection error:", error);
+    console.error("[Middleware:Proxy] Redirection error:", error);
   }
 
   return NextResponse.next();
@@ -158,13 +122,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, icon.png, public static assets
-     */
     "/((?!api|_next/static|_next/image|favicon\\.ico|icon\\.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

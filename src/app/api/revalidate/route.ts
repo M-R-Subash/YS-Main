@@ -2,6 +2,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
 import { serverConfig } from "@/lib/config/server";
+import { getRedisClient } from "@/lib/redis";
 
 function isSecretValid(providedSecret: string | null | undefined): boolean {
   const expectedSecret = serverConfig.security.revalidationSecret;
@@ -14,98 +15,38 @@ function isSecretValid(providedSecret: string | null | undefined): boolean {
     return false;
   }
 
+  // Elite security: Prevents string comparison timing attacks
   return crypto.timingSafeEqual(bufProvided, bufExpected);
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json().catch(() => ({}));
-    const { secret, path, type, tag } = body;
-
-    if (!isSecretValid(secret)) {
-      return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
-    }
-
-    if (tag) {
-      (revalidateTag as any)(tag, "max");
-    }
-
-    if (path) {
-      if (type === "layout") {
-        revalidatePath(path, "layout");
-        (revalidateTag as any)("global-header", "max");
-        (revalidateTag as any)("global-footer", "max");
-      } else {
-        revalidatePath(path, "page");
-      }
-
-      // Automatically purge corresponding Redis caches
-      const { getRedisClient } = await import("@/lib/redis");
-      const redis = getRedisClient();
-      if (redis) {
-        if (path.startsWith("/blogs")) {
-          try {
-            const blogKeys = await redis.keys("cache:main:blogs:*");
-            if (blogKeys.length > 0) {
-              await redis.del(...blogKeys);
-            }
-            await redis.del("cache:main:categories");
-          } catch (e) {
-            console.warn("[Revalidate:Redis] Error purging blog cache:", e);
-          }
-        }
-        if (path.includes("redirect")) {
-          try {
-            await redis.del("cache:main:redirects");
-          } catch (e) {
-            console.warn("[Revalidate:Redis] Error purging redirects cache:", e);
-          }
-        }
-      }
-    }
-
-    return NextResponse.json({
-      revalidated: true,
-      path: path || null,
-      tag: tag || null,
-      type: type || "page",
-      timestamp: Date.now(),
-    });
-  } catch (err: any) {
-    return NextResponse.json(
-      { message: "Revalidation error", error: err?.message },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get("secret");
-  const path = searchParams.get("path");
-  const type = (searchParams.get("type") as "page" | "layout") || "page";
-
-  const tag = searchParams.get("tag");
+// Extracted shared logic for both POST and GET revalidation triggers
+async function handleRevalidation(data: {
+  secret?: string | null;
+  path?: string | null;
+  type?: string | null;
+  tag?: string | null;
+}) {
+  const { secret, path, type, tag } = data;
 
   if (!isSecretValid(secret)) {
     return NextResponse.json({ message: "Invalid secret token" }, { status: 401 });
   }
 
+  // Next.js 16 tag revalidation requires profile parameter (e.g. "max")
   if (tag) {
-    (revalidateTag as any)(tag, "max");
+    revalidateTag(tag, "max");
   }
 
   if (path) {
     if (type === "layout") {
       revalidatePath(path, "layout");
-      (revalidateTag as any)("global-header", "max");
-      (revalidateTag as any)("global-footer", "max");
+      revalidateTag("global-header", "max");
+      revalidateTag("global-footer", "max");
     } else {
       revalidatePath(path, "page");
     }
 
     // Automatically purge corresponding Redis caches
-    const { getRedisClient } = await import("@/lib/redis");
     const redis = getRedisClient();
     if (redis) {
       if (path.startsWith("/blogs")) {
@@ -119,8 +60,11 @@ export async function GET(request: NextRequest) {
           console.warn("[Revalidate:Redis] Error purging blog cache:", e);
         }
       }
+
       if (path.includes("redirect")) {
         try {
+          // Purges both the Redis Hash and fallback cache
+          await redis.del("main:redirects");
           await redis.del("cache:main:redirects");
         } catch (e) {
           console.warn("[Revalidate:Redis] Error purging redirects cache:", e);
@@ -133,7 +77,38 @@ export async function GET(request: NextRequest) {
     revalidated: true,
     path: path || null,
     tag: tag || null,
-    type,
+    type: type || "page",
     timestamp: Date.now(),
   });
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    return await handleRevalidation(body);
+  } catch (err: any) {
+    return NextResponse.json(
+      { message: "Revalidation error", error: err?.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const data = {
+      secret: searchParams.get("secret"),
+      path: searchParams.get("path"),
+      type: searchParams.get("type") || "page",
+      tag: searchParams.get("tag"),
+    };
+
+    return await handleRevalidation(data);
+  } catch (err: any) {
+    return NextResponse.json(
+      { message: "Revalidation error", error: err?.message },
+      { status: 500 }
+    );
+  }
 }
