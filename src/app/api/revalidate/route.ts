@@ -38,6 +38,30 @@ export async function POST(request: NextRequest) {
       } else {
         revalidatePath(path, "page");
       }
+
+      // Automatically purge corresponding Redis caches
+      const { getRedisClient } = await import("@/lib/redis");
+      const redis = getRedisClient();
+      if (redis) {
+        if (path.startsWith("/blogs")) {
+          try {
+            const blogKeys = await redis.keys("cache:main:blogs:*");
+            if (blogKeys.length > 0) {
+              await redis.del(...blogKeys);
+            }
+            await redis.del("cache:main:categories");
+          } catch (e) {
+            console.warn("[Revalidate:Redis] Error purging blog cache:", e);
+          }
+        }
+        if (path.includes("redirect")) {
+          try {
+            await redis.del("cache:main:redirects");
+          } catch (e) {
+            console.warn("[Revalidate:Redis] Error purging redirects cache:", e);
+          }
+        }
+      }
     }
 
     return NextResponse.json({
@@ -78,6 +102,30 @@ export async function GET(request: NextRequest) {
       (revalidateTag as any)("global-footer", "max");
     } else {
       revalidatePath(path, "page");
+    }
+
+    // Automatically purge corresponding Redis caches
+    const { getRedisClient } = await import("@/lib/redis");
+    const redis = getRedisClient();
+    if (redis) {
+      if (path.startsWith("/blogs")) {
+        try {
+          const blogKeys = await redis.keys("cache:main:blogs:*");
+          if (blogKeys.length > 0) {
+            await redis.del(...blogKeys);
+          }
+          await redis.del("cache:main:categories");
+        } catch (e) {
+          console.warn("[Revalidate:Redis] Error purging blog cache:", e);
+        }
+      }
+      if (path.includes("redirect")) {
+        try {
+          await redis.del("cache:main:redirects");
+        } catch (e) {
+          console.warn("[Revalidate:Redis] Error purging redirects cache:", e);
+        }
+      }
     }
   }
 

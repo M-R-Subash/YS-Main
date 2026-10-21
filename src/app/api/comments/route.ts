@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     // 1. IP-based Rate Limiting (max 5 comments per 2 minutes per IP)
     const clientIp = getClientIp(request.headers);
-    const limitResult = rateLimit("comments-submit", clientIp, {
+    const limitResult = await rateLimit("comments-submit", clientIp, {
       windowMs: 2 * 60 * 1000,
       max: 5,
     });

@@ -33,6 +33,8 @@ const serverEnvSchema = z.object({
     .number()
     .min(1)
     .default(1000),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -44,6 +46,8 @@ const parsedServer = serverEnvSchema.safeParse({
   REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
   THROTTLE_TTL: process.env.THROTTLE_TTL,
   THROTTLE_LIMIT: process.env.THROTTLE_LIMIT,
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
 if (!parsedServer.success && process.env.SKIP_ENV_VALIDATION !== "true") {
@@ -72,6 +76,10 @@ export const serverConfig = {
   rateLimit: {
     throttleTtl: Number(rawServer.THROTTLE_TTL) || 60,
     throttleLimit: Number(rawServer.THROTTLE_LIMIT) || 1000,
+  },
+  redis: {
+    url: rawServer.UPSTASH_REDIS_REST_URL,
+    token: rawServer.UPSTASH_REDIS_REST_TOKEN,
   },
 } as const;
 

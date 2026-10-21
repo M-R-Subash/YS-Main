@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
+import { getRedisClient } from "@/lib/redis";
 
 interface CachedRule {
   destinationUrl: string;
@@ -17,6 +18,23 @@ async function getActiveRedirectsMap(): Promise<Map<string, CachedRule>> {
     return redirectsCache;
   }
 
+  const redis = getRedisClient();
+  const REDIS_CACHE_KEY = "cache:main:redirects";
+
+  if (redis) {
+    try {
+      const cached = await redis.get<Record<string, CachedRule>>(REDIS_CACHE_KEY);
+      if (cached && typeof cached === "object") {
+        const map = new Map<string, CachedRule>(Object.entries(cached));
+        redirectsCache = map;
+        lastCacheFetchTime = now;
+        return map;
+      }
+    } catch (err) {
+      console.warn("[Redirects:Redis] Failed to read redirects cache:", err);
+    }
+  }
+
   try {
     const rules = await prisma.redirection.findMany({
       where: { status: "active" },
@@ -28,15 +46,26 @@ async function getActiveRedirectsMap(): Promise<Map<string, CachedRule>> {
     });
 
     const newMap = new Map<string, CachedRule>();
+    const serializableRecord: Record<string, CachedRule> = {};
+
     for (const rule of rules) {
-      newMap.set(rule.sourceUrl, {
+      const entry = {
         destinationUrl: rule.destinationUrl,
         statusCode: rule.statusCode,
-      });
+      };
+      newMap.set(rule.sourceUrl, entry);
+      serializableRecord[rule.sourceUrl] = entry;
     }
 
     redirectsCache = newMap;
     lastCacheFetchTime = now;
+
+    if (redis) {
+      redis.set(REDIS_CACHE_KEY, serializableRecord, { ex: 60 }).catch((err) => {
+        console.warn("[Redirects:Redis] Failed to write cache:", err);
+      });
+    }
+
     return newMap;
   } catch (err) {
     console.error("Failed to load redirect cache:", err);

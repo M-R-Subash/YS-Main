@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const clientIp = getClientIp(req.headers);
 
     // Rate limit: Max 5 subscription attempts per hour per IP
-    const limit = rateLimit("newsletter-subscribe", clientIp, {
+    const limit = await rateLimit("newsletter-subscribe", clientIp, {
       windowMs: 60 * 60 * 1000,
       max: 5,
     });

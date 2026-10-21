@@ -1,8 +1,23 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { getRedisClient } from "@/lib/redis";
 
 export async function getBlogs({ page = 1, limit = 15, category = "" }) {
+  const cacheKey = `cache:main:blogs:${category || "all"}:${page}:${limit}`;
+  const redis = getRedisClient();
+
+  if (redis) {
+    try {
+      const cached = await redis.get<{ blogs: any[]; total: number; hasMore: boolean }>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      console.warn("[Blogs:Redis] Failed to read from cache:", err);
+    }
+  }
+
   const skip = (page - 1) * limit;
   const now = new Date();
   const where: any = {
@@ -15,7 +30,7 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
   
   if (category && category !== "All") {
     where.categories = {
-      has: category
+      has: category,
     };
   }
 
@@ -55,10 +70,34 @@ export async function getBlogs({ page = 1, limit = 15, category = "" }) {
     prisma.blog.count({ where }),
   ]);
 
-  return { blogs, total, hasMore: skip + blogs.length < total };
+  const result = { blogs, total, hasMore: skip + blogs.length < total };
+
+  if (redis) {
+    // Cache for 5 minutes (300 seconds)
+    redis.set(cacheKey, result, { ex: 300 }).catch((err) => {
+      console.warn("[Blogs:Redis] Failed to write cache:", err);
+    });
+  }
+
+  return result;
 }
 
 export async function getCategories(): Promise<string[]> {
+  const cacheKey = "cache:main:categories";
+  const redis = getRedisClient();
+
+  if (redis) {
+    try {
+      const cached = await redis.get<string[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      console.warn("[Categories:Redis] Failed to read from cache:", err);
+    }
+  }
+
+  let categories: string[] = [];
   try {
     const results = await prisma.$queryRaw<{ category: string }[]>`
       SELECT DISTINCT unnest(categories) AS category
@@ -66,7 +105,7 @@ export async function getCategories(): Promise<string[]> {
       WHERE status = 'published' AND "isTrashed" = false
       ORDER BY category ASC;
     `;
-    return results.map((r) => r.category).filter(Boolean);
+    categories = results.map((r) => r.category).filter(Boolean);
   } catch {
     const blogs = await prisma.blog.findMany({
       where: { status: "published", isTrashed: false },
@@ -81,6 +120,15 @@ export async function getCategories(): Promise<string[]> {
       }
     });
 
-    return Array.from(categorySet).sort();
+    categories = Array.from(categorySet).sort();
   }
+
+  if (redis && categories.length > 0) {
+    // Cache categories for 15 minutes (900 seconds)
+    redis.set(cacheKey, categories, { ex: 900 }).catch((err) => {
+      console.warn("[Categories:Redis] Failed to write cache:", err);
+    });
+  }
+
+  return categories;
 }

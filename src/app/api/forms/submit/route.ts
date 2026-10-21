@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     // 1. IP-based Rate Limiting (max 8 submissions per 2 minutes per IP)
     const clientIp = getClientIp(request.headers);
-    const limitResult = rateLimit("forms-submit", clientIp, {
+    const limitResult = await rateLimit("forms-submit", clientIp, {
       windowMs: 2 * 60 * 1000,
       max: 8,
     });
