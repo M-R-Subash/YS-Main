@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Clock, Calendar, Link2, ChevronRight } from "lucide-react";
+import { isTrustedCmsOrigin, isSafeRelativeUrl } from "@/lib/safe-origin";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const FacebookIcon = ({ className }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -60,10 +62,14 @@ export default function BlogSingleClient({
     if (!isPreview) return;
 
     const handleMessage = (event: MessageEvent) => {
+      if (!isTrustedCmsOrigin(event.origin)) return;
+
       if (event.data?.type === "BLOG_DRAFT_RELOAD") {
         window.location.reload();
       } else if (event.data?.type === "BLOG_NAVIGATE" && event.data?.url) {
-        window.location.href = event.data.url;
+        if (isSafeRelativeUrl(event.data.url)) {
+          window.location.href = event.data.url;
+        }
       }
     };
 
@@ -258,7 +264,7 @@ export default function BlogSingleClient({
           <main className="w-full flex-1 order-1 lg:order-2 bg-white border border-zinc-200/80 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm">
             <article 
               className="prose prose-zinc prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:text-primary-hover max-w-none prose-img:rounded-2xl"
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlContent) }}
             />
 
             {/* Blog FAQ Section */}

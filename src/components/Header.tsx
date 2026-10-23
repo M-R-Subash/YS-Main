@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { isTrustedCmsOrigin } from "@/lib/safe-origin";
 
 export interface NavLinkUrl {
   url: string;
@@ -77,6 +78,7 @@ export default function Header({ data }: { data?: HeaderData | null }) {
   // Listen for live preview updates from the CMS iframe
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
+      if (!isTrustedCmsOrigin(e.origin)) return;
       if (e.data?.type === "HEADER_UPDATE" && e.data.data) {
         setLocalData(e.data.data);
       }

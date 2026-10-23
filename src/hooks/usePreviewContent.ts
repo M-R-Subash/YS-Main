@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isTrustedCmsOrigin } from "@/lib/safe-origin";
 
 /**
  * Reusable hook for receiving live CMS preview content updates.
@@ -13,31 +14,8 @@ export function usePreviewContent(
   eventType?: string | string[],
 ) {
   useEffect(() => {
-    const targetOrigin =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-
-    const isAllowedOrigin = (origin: string, expectedOrigin: string) => {
-      try {
-        const incoming = new URL(origin);
-        if (
-          incoming.hostname.endsWith(".vercel.app") ||
-          incoming.hostname === "localhost" ||
-          incoming.hostname === "127.0.0.1" ||
-          incoming.hostname.endsWith(".ysinnovations.com") ||
-          incoming.hostname === "ysinnovations.com"
-        ) {
-          return true;
-        }
-
-        const expected = new URL(expectedOrigin);
-        return expected.origin === incoming.origin;
-      } catch {
-        return origin === expectedOrigin;
-      }
-    };
-
     const handleMessage = (e: MessageEvent) => {
-      if (!isAllowedOrigin(e.origin, targetOrigin)) return;
+      if (!isTrustedCmsOrigin(e.origin)) return;
       if (!e.data?.content) return;
 
       const types = Array.isArray(eventType)

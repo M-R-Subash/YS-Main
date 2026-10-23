@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export interface BlogFaqItem {
   id?: string;
@@ -107,7 +108,7 @@ export default function BlogFaqSection({
                       {isHtml(faq.answer) ? (
                         <div
                           className="prose prose-zinc max-w-none text-zinc-600 text-sm sm:text-[15px] leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_a]:text-primary [&_a]:underline [&_a:hover]:text-primary/80 [&_strong]:text-zinc-900 [&_code]:text-primary [&_code]:bg-zinc-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded"
-                          dangerouslySetInnerHTML={{ __html: faq.answer }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
                         />
                       ) : (
                         <div className="whitespace-pre-line">{faq.answer}</div>

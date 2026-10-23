@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { PlusCircle, MinusCircle, Lightbulb } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface FaqSectionProps {
   badge?: string;
@@ -134,7 +135,7 @@ export default function FaqSection({
                         {isHtml(faq.answer) ? (
                           <div
                             className="prose prose-zinc max-w-none text-zinc-600 text-sm sm:text-[15px] leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-1.5 [&_a]:text-primary [&_a]:underline"
-                            dangerouslySetInnerHTML={{ __html: faq.answer }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(faq.answer) }}
                           />
                         ) : (
                           <div className="whitespace-pre-line">{faq.answer}</div>

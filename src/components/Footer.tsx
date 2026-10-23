@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight, Send, Globe, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { isTrustedCmsOrigin } from "@/lib/safe-origin";
 
 export interface FooterLink {
   text: string;
@@ -152,6 +153,7 @@ export default function Footer({ data }: { data?: FooterData | null }) {
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
+      if (!isTrustedCmsOrigin(e.origin)) return;
       if (e.data?.type === "FOOTER_UPDATE" && e.data.data) {
         setLocalData(e.data.data);
       }

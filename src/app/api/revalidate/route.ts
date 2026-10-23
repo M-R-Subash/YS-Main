@@ -51,7 +51,17 @@ async function handleRevalidation(data: {
     if (redis) {
       if (path.startsWith("/blogs")) {
         try {
-          const blogKeys = await redis.keys("cache:main:blogs:*");
+          let cursor = "0";
+          const blogKeys: string[] = [];
+          do {
+            const [nextCursor, matched] = await redis.scan(cursor, {
+              match: "cache:main:blogs:*",
+              count: 100,
+            });
+            cursor = nextCursor;
+            blogKeys.push(...matched);
+          } while (cursor !== "0" && blogKeys.length < 500);
+
           if (blogKeys.length > 0) {
             await redis.del(...blogKeys);
           }
