@@ -110,22 +110,32 @@ export async function getCategories(): Promise<string[]> {
 
   let categories: string[] = [];
   try {
-    // Pure Prisma extraction: resilient, type-safe, and database-agnostic
-    const blogs = await prisma.blog.findMany({
-      where: { status: "published", isTrashed: false },
-      select: { categories: true },
+    // 1. Relational query: utilizes database indexes, ultra-fast, zero in-memory overhead
+    const catRecords = await prisma.category.findMany({
+      where: {
+        blogs: {
+          some: {
+            status: "published",
+            isTrashed: false,
+          },
+        },
+      },
+      select: { name: true },
+      orderBy: { name: "asc" },
     });
 
-    const categorySet = new Set<string>();
-    blogs.forEach((blog) => {
-      if (Array.isArray(blog.categories)) {
-        blog.categories.forEach((cat) => {
-          if (cat) categorySet.add(cat);
-        });
-      }
-    });
-
-    categories = Array.from(categorySet).sort();
+    if (catRecords.length > 0) {
+      categories = catRecords.map((c) => c.name);
+    } else {
+      // 2. DB-level DISTINCT unnest fallback for legacy string array column without pulling all blogs to Node
+      const rawCategories = await prisma.$queryRaw<{ category: string }[]>`
+        SELECT DISTINCT unnest(categories) as category 
+        FROM "Blog" 
+        WHERE status = 'published' AND "isTrashed" = false
+        ORDER BY category ASC
+      `;
+      categories = rawCategories.map((r) => r.category).filter(Boolean);
+    }
   } catch (err) {
     console.error("[Categories:Prisma] Failed to fetch categories:", err);
   }

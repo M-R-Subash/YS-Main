@@ -78,51 +78,10 @@ export async function POST(req: Request) {
           const isNewVisitorToday = !existingSession;
           const isNewVisitorToPage = !existingSession || !existingSession.visitedPaths.includes(path);
 
-          // Upsert visitor session
-          await prisma.analyticsVisitorSession.upsert({
-            where: { visitorHash },
-            create: {
-              visitorHash,
-              lastPath: path,
-              visitedPaths: [path],
-              isEngaged: false,
-              lastSeenAt: new Date(),
-            },
-            update: {
-              lastPath: path,
-              ...(isNewVisitorToPage && {
-                visitedPaths: {
-                  push: path,
-                },
-              }),
-              lastSeenAt: new Date(),
-            },
-          });
-
           // Parse device and referrer
           const device = parseDeviceType(userAgent);
           const source = parseReferrerSource(referrer, utmSource, host);
           const campaign = (utmCampaign || "").trim();
-
-          // A. Rollup: Daily Totals
-          await prisma.analyticsDaily.upsert({
-            where: { date: todayUtc },
-            create: {
-              date: todayUtc,
-              totalViews: 1,
-              uniqueVisitors: isNewVisitorToday ? 1 : 0,
-              desktopViews: device === "desktop" ? 1 : 0,
-              mobileViews: device === "mobile" ? 1 : 0,
-              tabletViews: device === "tablet" ? 1 : 0,
-            },
-            update: {
-              totalViews: { increment: 1 },
-              ...(isNewVisitorToday && { uniqueVisitors: { increment: 1 } }),
-              ...(device === "desktop" && { desktopViews: { increment: 1 } }),
-              ...(device === "mobile" && { mobileViews: { increment: 1 } }),
-              ...(device === "tablet" && { tabletViews: { increment: 1 } }),
-            },
-          });
 
           // Determine resource type if not provided
           let resolvedType = resourceType;
@@ -132,97 +91,153 @@ export async function POST(req: Request) {
             else resolvedType = "page";
           }
 
-          // B. Rollup: Page Views
-          await prisma.analyticsPage.upsert({
-            where: {
-              date_path: { date: todayUtc, path },
-            },
-            create: {
-              date: todayUtc,
-              path,
-              title: title || path,
-              resourceType: resolvedType,
-              resourceId: resourceId || undefined,
-              views: 1,
-              uniqueVisitors: isNewVisitorToPage ? 1 : 0,
-            },
-            update: {
-              views: { increment: 1 },
-              ...(title && { title }),
-              ...(isNewVisitorToPage && { uniqueVisitors: { increment: 1 } }),
-              ...(resolvedType && { resourceType: resolvedType }),
-              ...(resourceId && { resourceId }),
-            },
-          });
-
-          // C. Rollup: Referrer & Campaign
-          await prisma.analyticsReferrer.upsert({
-            where: {
-              date_source_utmCampaign: {
-                date: todayUtc,
-                source,
-                utmCampaign: campaign,
+          // Execute independent upserts and increments concurrently in parallel
+          const rollupTasks: Promise<any>[] = [
+            // A. Session upsert
+            prisma.analyticsVisitorSession.upsert({
+              where: { visitorHash },
+              create: {
+                visitorHash,
+                lastPath: path,
+                visitedPaths: [path],
+                isEngaged: false,
+                lastSeenAt: new Date(),
               },
-            },
-            create: {
-              date: todayUtc,
-              source,
-              utmCampaign: campaign,
-              views: 1,
-            },
-            update: {
-              views: { increment: 1 },
-            },
-          });
+              update: {
+                lastPath: path,
+                ...(isNewVisitorToPage && {
+                  visitedPaths: {
+                    push: path,
+                  },
+                }),
+                lastSeenAt: new Date(),
+              },
+            }),
 
-          // D. Rollup: Country
-          if (countryCode && countryCode.length === 2) {
-            await prisma.analyticsCountry.upsert({
+            // B. Rollup: Daily Totals
+            prisma.analyticsDaily.upsert({
+              where: { date: todayUtc },
+              create: {
+                date: todayUtc,
+                totalViews: 1,
+                uniqueVisitors: isNewVisitorToday ? 1 : 0,
+                desktopViews: device === "desktop" ? 1 : 0,
+                mobileViews: device === "mobile" ? 1 : 0,
+                tabletViews: device === "tablet" ? 1 : 0,
+              },
+              update: {
+                totalViews: { increment: 1 },
+                ...(isNewVisitorToday && { uniqueVisitors: { increment: 1 } }),
+                ...(device === "desktop" && { desktopViews: { increment: 1 } }),
+                ...(device === "mobile" && { mobileViews: { increment: 1 } }),
+                ...(device === "tablet" && { tabletViews: { increment: 1 } }),
+              },
+            }),
+
+            // C. Rollup: Page Views
+            prisma.analyticsPage.upsert({
               where: {
-                date_countryCode: {
+                date_path: { date: todayUtc, path },
+              },
+              create: {
+                date: todayUtc,
+                path,
+                title: title || path,
+                resourceType: resolvedType,
+                resourceId: resourceId || undefined,
+                views: 1,
+                uniqueVisitors: isNewVisitorToPage ? 1 : 0,
+              },
+              update: {
+                views: { increment: 1 },
+                ...(title && { title }),
+                ...(isNewVisitorToPage && { uniqueVisitors: { increment: 1 } }),
+                ...(resolvedType && { resourceType: resolvedType }),
+                ...(resourceId && { resourceId }),
+              },
+            }),
+
+            // D. Rollup: Referrer & Campaign
+            prisma.analyticsReferrer.upsert({
+              where: {
+                date_source_utmCampaign: {
                   date: todayUtc,
-                  countryCode,
+                  source,
+                  utmCampaign: campaign,
                 },
               },
               create: {
                 date: todayUtc,
-                countryCode,
+                source,
+                utmCampaign: campaign,
                 views: 1,
               },
               update: {
                 views: { increment: 1 },
               },
-            });
+            }),
+          ];
+
+          // E. Rollup: Country (if valid 2-letter code)
+          if (countryCode && countryCode.length === 2) {
+            rollupTasks.push(
+              prisma.analyticsCountry.upsert({
+                where: {
+                  date_countryCode: {
+                    date: todayUtc,
+                    countryCode,
+                  },
+                },
+                create: {
+                  date: todayUtc,
+                  countryCode,
+                  views: 1,
+                },
+                update: {
+                  views: { increment: 1 },
+                },
+              })
+            );
           }
 
-          // E. Increment Blog or Page viewCount
+          // F. Increment Blog or Page viewCount
           if (resolvedType === "blog") {
             const blogSlug = path.replace(/^\/(blogs|blog)\//, "").replace(/\/$/, "");
             if (resourceId) {
-              await prisma.blog.update({
-                where: { id: resourceId },
-                data: { viewCount: { increment: 1 } },
-              }).catch(() => {});
+              rollupTasks.push(
+                prisma.blog.update({
+                  where: { id: resourceId },
+                  data: { viewCount: { increment: 1 } },
+                }).catch(() => {})
+              );
             } else if (blogSlug) {
-              await prisma.blog.update({
-                where: { slug: blogSlug },
-                data: { viewCount: { increment: 1 } },
-              }).catch(() => {});
+              rollupTasks.push(
+                prisma.blog.update({
+                  where: { slug: blogSlug },
+                  data: { viewCount: { increment: 1 } },
+                }).catch(() => {})
+              );
             }
           } else if (resolvedType === "page" && path !== "/") {
             const pageSlug = path.replace(/^\//, "").replace(/\/$/, "");
             if (resourceId) {
-              await prisma.page.update({
-                where: { id: resourceId },
-                data: { viewCount: { increment: 1 } },
-              }).catch(() => {});
+              rollupTasks.push(
+                prisma.page.update({
+                  where: { id: resourceId },
+                  data: { viewCount: { increment: 1 } },
+                }).catch(() => {})
+              );
             } else if (pageSlug) {
-              await prisma.page.update({
-                where: { slug: pageSlug },
-                data: { viewCount: { increment: 1 } },
-              }).catch(() => {});
+              rollupTasks.push(
+                prisma.page.update({
+                  where: { slug: pageSlug },
+                  data: { viewCount: { increment: 1 } },
+                }).catch(() => {})
+              );
             }
           }
+
+          await Promise.allSettled(rollupTasks);
         } else if (type === "engage") {
           // Increment engagement if user wasn't engaged yet for this page
           const session = await prisma.analyticsVisitorSession.findUnique({
@@ -234,53 +249,57 @@ export async function POST(req: Request) {
           const isFirstPageEngagement = !session || !session.engagedPaths.includes(path);
 
           if (isFirstPageEngagement) {
-            await prisma.analyticsVisitorSession.upsert({
-              where: { visitorHash },
-              create: {
-                visitorHash,
-                lastPath: path,
-                visitedPaths: [path],
-                engagedPaths: [path],
-                isEngaged: true,
-                lastSeenAt: new Date(),
-              },
-              update: {
-                isEngaged: true,
-                engagedPaths: {
-                  push: path,
+            const engageTasks: Promise<any>[] = [
+              prisma.analyticsVisitorSession.upsert({
+                where: { visitorHash },
+                create: {
+                  visitorHash,
+                  lastPath: path,
+                  visitedPaths: [path],
+                  engagedPaths: [path],
+                  isEngaged: true,
+                  lastSeenAt: new Date(),
                 },
-                lastSeenAt: new Date(),
-              },
-            });
-
-            // Increment site-wide engagement if this visitor hadn't engaged anywhere today yet
-            if (isFirstSiteEngagement) {
-              await prisma.analyticsDaily.upsert({
-                where: { date: todayUtc },
+                update: {
+                  isEngaged: true,
+                  engagedPaths: {
+                    push: path,
+                  },
+                  lastSeenAt: new Date(),
+                },
+              }),
+              prisma.analyticsPage.upsert({
+                where: {
+                  date_path: { date: todayUtc, path },
+                },
                 create: {
                   date: todayUtc,
+                  path,
                   engagedVisits: 1,
                 },
                 update: {
                   engagedVisits: { increment: 1 },
                 },
-              });
+              }),
+            ];
+
+            // Increment site-wide engagement if this visitor hadn't engaged anywhere today yet
+            if (isFirstSiteEngagement) {
+              engageTasks.push(
+                prisma.analyticsDaily.upsert({
+                  where: { date: todayUtc },
+                  create: {
+                    date: todayUtc,
+                    engagedVisits: 1,
+                  },
+                  update: {
+                    engagedVisits: { increment: 1 },
+                  },
+                })
+              );
             }
 
-            // Always increment per-page engaged visits if new to this page
-            await prisma.analyticsPage.upsert({
-              where: {
-                date_path: { date: todayUtc, path },
-              },
-              create: {
-                date: todayUtc,
-                path,
-                engagedVisits: 1,
-              },
-              update: {
-                engagedVisits: { increment: 1 },
-              },
-            });
+            await Promise.allSettled(engageTasks);
           }
         }
 
