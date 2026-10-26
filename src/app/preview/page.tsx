@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { serverConfig } from "@/lib/config/server";
 import { generateToc } from "@/lib/toc";
 import { renderTipTap } from "@/lib/tiptap";
 
@@ -25,18 +24,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import { isPreviewAuthorized } from "@/lib/preview";
+
 export default async function PreviewPage({ searchParams }: PreviewPageProps) {
   const params = await searchParams;
-  const secret = params?.secret;
-  const expectedSecret = serverConfig.security.previewSecret;
-
-  if (!secret || !expectedSecret || secret !== expectedSecret) {
-    notFound();
-  }
-
   let rawPath = params?.path || params?.slug || "/";
   if (rawPath.length > 1 && rawPath.endsWith("/")) {
     rawPath = rawPath.slice(0, -1);
+  }
+
+  const authorized = await isPreviewAuthorized(searchParams, rawPath);
+  if (!authorized) {
+    notFound();
   }
 
   // 1. Homepage preview

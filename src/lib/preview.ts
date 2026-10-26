@@ -54,24 +54,26 @@ export async function isPreviewAuthorized(
         return false; // Token expired
       }
 
-      // Verify HMAC against slug-bound token or wildcard token
-      const expectedSigWithSlug = crypto
-        .createHmac("sha256", expectedSecret)
-        .update(`${slug || ""}:${expiresAt}`)
-        .digest("hex");
+      // Verify HMAC against slug-bound token variations or wildcard token
+      const slugVariants = new Set<string>();
+      if (slug) {
+        slugVariants.add(slug);
+        slugVariants.add(slug.startsWith("/") ? slug.slice(1) : `/${slug}`);
+      }
+      slugVariants.add(""); // wildcard token
 
-      const expectedSigGeneric = crypto
-        .createHmac("sha256", expectedSecret)
-        .update(`:${expiresAt}`)
-        .digest("hex");
+      for (const variant of slugVariants) {
+        const expectedSig = crypto
+          .createHmac("sha256", expectedSecret)
+          .update(`${variant}:${expiresAt}`)
+          .digest("hex");
 
-      if (
-        (signature.length === expectedSigWithSlug.length &&
-          crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSigWithSlug))) ||
-        (signature.length === expectedSigGeneric.length &&
-          crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSigGeneric)))
-      ) {
-        return true;
+        if (
+          signature.length === expectedSig.length &&
+          crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))
+        ) {
+          return true;
+        }
       }
     }
 
